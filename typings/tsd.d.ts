@@ -8,3 +8,4 @@
 /// <reference path="mysql/mysql.d.ts" />
 /// <reference path="mykoop-mailing-list/mykoop-mailing-list.d.ts" />
 /// <reference path="mykoop-user/mykoop-user.d.ts" />
+/// <reference path="lodash/lodash.d.ts" />

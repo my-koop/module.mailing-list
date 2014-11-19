@@ -12,7 +12,7 @@ export function attachControllers(
   binder.attach(
     {
       endPoint: endpoints.mailinglist.add,
-      validation: validation.addMailingList
+      validation: validation.mailingListDefinition
     },
     binder.makeSimpleController("addMailingList", function (req: Express.Request) {
       return {
@@ -20,5 +20,37 @@ export function attachControllers(
         description: req.param("description")
       };
     })
+  );
+
+  binder.attach(
+    {
+      endPoint: endpoints.mailinglist.udpate,
+      validation: validation.mailingListDefinition
+    },
+    binder.makeSimpleController("updateMailingList", function (req: Express.Request) {
+      return {
+        id: parseInt(req.param("id")),
+        name: req.param("name"),
+        description: req.param("description")
+      };
+    })
+  );
+
+  binder.attach(
+    {
+      endPoint: endpoints.mailinglist.delete
+    },
+    binder.makeSimpleController("deleteMailingList", function (req: Express.Request) {
+      return {
+        id: req.param("id")
+      };
+    })
+  );
+
+  binder.attach(
+    {
+      endPoint: endpoints.mailinglist.list
+    },
+    binder.makeSimpleController("getMailingLists")
   );
 }
