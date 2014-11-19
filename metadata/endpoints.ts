@@ -1,0 +1,4 @@
+var endpoints = {
+
+}
+export = endpoints;

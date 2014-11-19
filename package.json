@@ -1,0 +1,32 @@
+{
+  "name": "mykoop-mailing-list",
+  "role": "mailing-list",
+  "mykoop": {
+    "dependencies": {
+      "database": "^1.0.0-rc",
+      "user": "^1.0.0-rc",
+      "communications": "^1.0.0-rc"
+    }
+  },
+  "version": "1.0.0-rc",
+  "description": "mailing-list module for My Koop",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/my-koop/module.mailing-list.git"
+  },
+  "author": "",
+  "license": "GNU GPL v2",
+  "bugs": {
+    "url": "https://github.com/my-koop/module.mailing-list/issues"
+  },
+  "homepage": "https://github.com/my-koop/module.mailing-list",
+  "dependencies": {
+    "async": "^0.9.0",
+    "mykoop-logger": "git://github.com/my-koop/module.logger",
+    "mykoop-utils": "git://github.com/my-koop/module.utils#rc"
+  }
+}
