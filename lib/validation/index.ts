@@ -1,21 +1,19 @@
 // see http://validatejs.org/ for documentation on how to do contraints
 var validate = require("mykoop-utils/common").validation;
 
-var updateDataConstraint = {
-  id: {
-    presence: true,
-    numericality: {
-      onlyInteger: true,
-      greaterThan: 0
-    }
-  },
-  value: {
-    presence: true,
-    length: {
-      minimum: 5
-    }
-  }
-}
-export function get1(obj) {
-  return validate(obj, updateDataConstraint);
+export function addMailingList(obj) {
+  var addMailingListConstraint = {
+    name: {
+      presence: {message: "^empty"},
+      length: {
+        minimum: 4,
+        maximum: 45,
+        tooShort: "^tooShort",
+        tooLong: "^tooLong"
+      }
+    },
+    description: {},
+    permissions: {}
+  };
+  return validate(obj, addMailingListConstraint);
 }
