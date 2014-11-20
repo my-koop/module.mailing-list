@@ -46,11 +46,40 @@ var MailingListAdminPage = React.createClass({
     });
   },
 
+  mailingListDeleted: function(iMailingList) {
+    var mls = this.state.mailingLists;
+    // inline remove of an item
+    mls.splice(iMailingList, 1);
+    this.setState({
+      mailingLists: mls
+    });
+  },
+
+  requestChange: function(ml, field, newValue) {
+    ml[field] = newValue;
+    this.setState({
+      mailingLists: this.state.mailingLists
+    });
+  },
+
+  makeValueLink: function(ml, field) {
+    return {
+      value: ml[field],
+      requestChange: _.bind(this.requestChange, this, ml, field)
+    }
+  },
+
   render: function() {
+    var self = this;
     var mailingLists = _.map(this.state.mailingLists, function(ml, i) {
       return (
         <BSCol md={4} sm={6} key={i}>
-          <MKMailingListEditPanel {...ml} />
+          <MKMailingListEditPanel
+            idLink={self.makeValueLink(ml, "id")}
+            nameLink={self.makeValueLink(ml, "name")}
+            descriptionLink={self.makeValueLink(ml, "description")}
+            onDelete={_.bind(self.mailingListDeleted, self, i)}
+          />
         </BSCol>
       );
     });

@@ -17,62 +17,121 @@ var MailingListEditPanel = React.createClass({
   mixins: [React.addons.LinkedStateMixin],
 
   propTypes: {
-    id: React.PropTypes.number.isRequired,
-    name: React.PropTypes.string.isRequired,
-    description: React.PropTypes.string
+    idLink: React.PropTypes.shape({
+      value: React.PropTypes.number.isRequired,
+      requestChange: React.PropTypes.func.isRequired
+    }).isRequired,
+    nameLink: React.PropTypes.shape({
+      value: React.PropTypes.string.isRequired,
+      requestChange: React.PropTypes.func.isRequired
+    }).isRequired,
+    descriptionLink: React.PropTypes.shape({
+      value: React.PropTypes.string,
+      requestChange: React.PropTypes.func.isRequired
+    }).isRequired,
+    onDelete: React.PropTypes.func,
+    onSave: React.PropTypes.func
   },
 
   getInitialState: function() {
-    return  {
-      id: this.props.id,
-      name: this.props.name,
-      description: this.props.description,
+    return _.merge(this.getValues(), {
       feedback: {
         i18n: []
       }
+    });
+  },
+
+  componentWillReceiveProps: function (nextProps) {
+    // update state if a new mailing is taking this spot
+    // except this spot was for a new mailing list
+    if(
+        nextProps.idLink.value !== this.props.idLink.value &&
+        this.props.idLink.value !== -1
+    ) {
+      this.props = nextProps;
+      this.setState(_.merge(this.getValues(), {feedback: {i18n: []}}));
     }
   },
 
+  getValues: function() {
+    return {
+      id: this.getField("id"),
+      name: this.getField("name"),
+      description: this.getField("description")
+    };
+  },
+
+  getField: function(field) {
+    return this.props[field + "Link"].value;
+  },
+
   hasChanges: function() {
-    return this.props.name !== this.state.name ||
-      this.props.description !== this.state.description;
+    return (this.getField("name") !== this.state.name) ||
+      this.getField("description") !== this.state.description;
   },
 
   saveChanges: function() {
-    var isNew = !~this.state.id;
+    var isNew = !~this.getField("id");
     var self = this;
     var action = isNew ?
         actions.mailinglist.add
       : actions.mailinglist.update
     action({
-      i18nErrors: {keys: ["app", "validation"]},
-      silent: true,
+      i18nErrors: {
+        keys: ["app", "validation"],
+        prefix: "mailinglist::updateMailingList."
+      },
       data: {
-        id: !isNew ? this.state.id : undefined,
-        name: this.state.name,
-        description: this.state.description
+        id: !isNew ? this.getField("id") : undefined,
+        name: this.getField("name"),
+        description: this.getField("description")
       }
     }, function(err, res) {
       if(err) {
         console.log(err);
         return self.setState({
           feedback: {
-            i18n: !_.isEmpty(err.i18n) ?
-              _.map(err.i18n, function(i18n) {
-                return {
-                  key: "mailinglist::updateMailingList." + i18n.key,
-                  var: i18n.var
-                }
-              })
-            : [{key: "errors", context: err.context}],
+            i18n: err.i18n,
             style: "danger"
           }
-        })
+        });
       }
-      self.setState({
+
+      self.setState(_.merge(self.getValues(), {
         feedback: {i18n: [{key: "success"}], style: "success"},
         id: isNew ? res.id : self.state.id
+      }), function() {
+        if(isNew) {
+          self.props.idLink.requestChange(res.id);
+        }
       });
+    });
+  },
+
+  deleteMailingList: function() {
+    var self = this;
+    var isNew = !~this.getField("id");
+    if(isNew) {
+      return self.props.onDelete && self.props.onDelete();
+    }
+    actions.mailinglist.delete({
+        i18nErrors: {
+          keys: ["app", "validation"],
+          prefix: "mailinglist::updateMailingList."
+        },
+        data: {
+          id: this.getField("id")
+        }
+    }, function(err) {
+      if(err) {
+        return self.setState({
+          feedback: {
+            i18n: err.i18n,
+            style: "danger"
+          }
+        });
+      }
+      self.props.onDelete && self.props.onDelete();
     });
   },
 
@@ -85,7 +144,7 @@ var MailingListEditPanel = React.createClass({
   },
 
   render: function() {
-    var isNew = !~this.state.id;
+    var isNew = !~this.getField("id");
     var buttonsConfig = [
       {
         icon: "save",
@@ -107,12 +166,14 @@ var MailingListEditPanel = React.createClass({
           overlayProps: {
             placement: "top"
           }
-        }
+        },
+        warningMessage: __("mailinglist::deleteMailingListWarning"),
+        callback: _.bind(this.deleteMailingList, this)
       }
     ];
     if(isNew) {
-      // remove delete button if it's a new mailing list
-      buttonsConfig.pop();
+      buttonsConfig[1].icon =  "remove";
+      buttonsConfig[1].warningMessage = __("areYouSure");
     }
     var message = !_.isEmpty(this.state.feedback.i18n) ?
       _.map(this.state.feedback.i18n, function(f, i) {
@@ -137,7 +198,7 @@ var MailingListEditPanel = React.createClass({
               <BSInput
                 type="text"
                 label={__("name")}
-                valueLink={this.linkState("name")}
+                valueLink={this.props.nameLink}
               />
             </BSCol>
 
@@ -149,7 +210,7 @@ var MailingListEditPanel = React.createClass({
                 className="textarea-resize-vertical"
                 label={__("mailinglist::description")}
                 placeholder={__("mailinglist::descriptionPlaceholder")}
-                valueLink={this.linkState("description")}
+                valueLink={this.props.descriptionLink}
               />
             </BSCol>
           </BSRow>
