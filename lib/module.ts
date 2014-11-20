@@ -247,6 +247,40 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
     });
   }
 
+  getUserMailingLists (
+    params: MailingList.GetUserMailingLists.Params,
+    callback: MailingList.GetUserMailingLists.Callback
+  ) {
+    this.callWithConnection(
+      this.__getUserMailingLists,
+      params,
+      callback
+    );
+  }
+
+  __getUserMailingLists (
+    connection: mysql.IConnection,
+    params: MailingList.GetUserMailingLists.Params,
+    callback: MailingList.GetUserMailingLists.Callback
+  ) {
+    connection.query(
+      " SELECT idMailingList\
+        FROM mailinglist_users\
+        WHERE idUser = ?",
+      [params.id],
+      function(err, rows: any[]) {
+        callback(
+          err && new DatabaseError(err),
+          _.map(rows, function(row) {
+            return {
+              id: row.idMailingList
+            }
+          })
+        );
+      }
+    )
+  }
+
 }
 
 export = Module;

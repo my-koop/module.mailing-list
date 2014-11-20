@@ -17,9 +17,12 @@ Mykoop module responsible to manage mailing lists
   - See [DeleteMailingLists](#deletemailinglist)
 - `POST /json/mailinglist/:id/register`
   - See [RegisterToMailingList](#registertomailinglist)
+- `GET /users/:id/mailinglists`
+  - See [GetUserMailingLists](#getusermailinglists)
 
 ##Available Methods
 ###AddMailingList
+Creates a new mailing list with the provided name and description
 ```ts
 addMailingList(
   params: {
@@ -45,6 +48,7 @@ addMailingList(
     - `"tooLong__#__"`: name is too long, # is the maximal length
 
 ###UpdateMailingList
+Update the mailing list information
 ```ts
 updateMailingList(
   params: {
@@ -75,6 +79,7 @@ updateMailingList(
     - `"tooLong__#__"`: name is too long, # is the maximal length
 
 ###DeleteMailingList
+Delete the mailing list and unlink all user from it
 ```ts
 deleteMailingList(
   params: {
@@ -96,6 +101,7 @@ deleteMailingList(
     - `"NaN"`: mailing list id is not a number
 
 ###GetMailingList
+Retrieves all the mailing list available
 ```ts
 getMailingLists(
   params: {},
@@ -111,6 +117,7 @@ getMailingLists(
     - description: description of the mailing list
 
 ###RegisterToMailingList
+Register the user to the mailing list
 ```ts
 registerToMailingList(
   params: {
@@ -139,3 +146,20 @@ registerToMailingList(
     - `"empty"`: user id is missing
     - `"notAnInteger"`: user id is not an integer
     - `"NaN"`: user id is not a number
+
+###GetUserMailingLists
+Get all the mailing list the user is registered to
+```ts
+registerToMailingList(
+  params: {
+    id: number;
+  },
+  callback: (err?, result?: {id: number;}[]) => void
+)
+```
+- params:
+  - id: id of the user
+- callback: callback once the treatment is done
+  - err: Error or null
+  - result: list of mailing lists
+    - id: id of the mailing list

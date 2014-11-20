@@ -54,4 +54,13 @@ declare module MailingList {
       (err?) : void;
     }
   }
+
+  module GetUserMailingLists {
+    export interface Params {
+      id: number;
+    }
+    export interface Callback {
+      (err?, result?: {id: number;}[]) : void;
+    }
+  }
 }

@@ -71,4 +71,17 @@ export function attachControllers(
       return params;
     })
   );
+
+  binder.attach(
+    {
+      endPoint: endpoints.user.mailinglist,
+      validation: validation.mailinglistId
+    },
+    binder.makeSimpleController("getUserMailingLists", function (req: Express.Request) {
+      var params: MailingList.GetUserMailingLists.Params = {
+        id: parseInt(req.param("id"))
+      };
+      return params;
+    })
+  );
 }

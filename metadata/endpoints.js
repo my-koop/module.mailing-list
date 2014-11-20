@@ -1,11 +1,11 @@
 var endpoints = {
     mailinglist: {
         list: {
-            path: "/mailinglist",
+            path: "/mailinglists",
             method: "get",
         },
         add: {
-            path: "/mailinglist",
+            path: "/mailinglists",
             method: "post",
             validation: {
                 resolve: "validation",
@@ -13,7 +13,7 @@ var endpoints = {
             }
         },
         update: {
-            path: "/mailinglist/:id",
+            path: "/mailinglists/:id",
             method: "put",
             validation: {
                 resolve: "validation",
@@ -21,12 +21,30 @@ var endpoints = {
             }
         },
         delete: {
-            path: "/mailinglist/:id",
-            method: "delete"
+            path: "/mailinglists/:id",
+            method: "delete",
+            validation: {
+                resolve: "validation",
+                value: "mailinglistId"
+            }
         },
         register: {
-            path: "/mailinglist/:id/register",
-            method: "post"
+            path: "/mailinglists/:id/register",
+            method: "post",
+            validation: {
+                resolve: "validation",
+                value: "mailinglistIdPlusUserId"
+            }
+        }
+    },
+    user: {
+        mailinglist: {
+            path: "/users/:id/mailinglists",
+            method: "get",
+            validation: {
+                resolve: "validation",
+                value: "mailinglistId"
+            }
         }
     }
 };
