@@ -23,6 +23,10 @@ var endpoints = {
         delete: {
             path: "/mailinglist/:id",
             method: "delete"
+        },
+        register: {
+            path: "/mailinglist/:id/register",
+            method: "post"
         }
     }
 };

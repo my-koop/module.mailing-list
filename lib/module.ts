@@ -2,13 +2,16 @@ import utils = require("mykoop-utils");
 import async = require("async");
 import _ = require("lodash");
 import controllerList = require("./controllers/index");
+var logger = utils.getLogger(module);
 var ApplicationError = utils.errors.ApplicationError;
 var DatabaseError = utils.errors.DatabaseError;
 
 class Module extends utils.BaseModule implements mkmailinglist.Module {
   db: mkdatabase.Module;
+  user: mkuser.Module;
   init() {
     this.db = <mkdatabase.Module>this.getModuleManager().get("database");
+    this.user = <mkuser.Module>this.getModuleManager().get("user");
     controllerList.attachControllers(new utils.ModuleControllersBinder(this));
   }
 
@@ -185,6 +188,59 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
       }
     ], function(err) {
       callback(err);
+    });
+  }
+
+  registerToMailingList(
+    params: MailingList.RegisterToMailingList.Params,
+    callback: MailingList.RegisterToMailingList.Callback
+  ) {
+    this.callWithConnection(
+      this.__registerToMailingList,
+      params,
+      callback
+    );
+  }
+
+  __registerToMailingList(
+    connection: mysql.IConnection,
+    params: MailingList.RegisterToMailingList.Params,
+    callback: MailingList.RegisterToMailingList.Callback
+  ) {
+    var self = this;
+    async.waterfall([
+      function(callback) {
+        self.user.__userExists(connection, {id: params.idUser}, function(err) {
+          callback(err && new ApplicationError(err, {idUser: "invalid"}));
+        });
+      },
+      function(callback) {
+        var mailingListUser = {
+          idUser: params.idUser,
+          idMailingList: params.idMailingList
+        }
+        connection.query(
+          "INSERT INTO mailinglist_users set ?",
+          [mailingListUser],
+          function(err, res) {
+            if(err) {
+              if(err.code === "ER_NO_REFERENCED_ROW_2") {
+                return callback(new ApplicationError(err, {idUser: "invalid"}));
+              }
+              if(err.code === "ER_NO_REFERENCED_ROW_") {
+                return callback(new ApplicationError(err, {idMailingList: "invalid"}));
+              }
+              if(err.code === "ER_DUP_ENTRY") {
+                return callback(new ApplicationError(err, {idUser: "alreadyRegistered"}));
+              }
+            }
+            callback(err && new DatabaseError(err));
+          }
+        )
+      }
+    ],
+    function(err) {
+      callback(err)
     });
   }
 

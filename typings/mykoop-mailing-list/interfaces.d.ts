@@ -44,4 +44,14 @@ declare module MailingList {
       (err?) : void;
     }
   }
+
+  module RegisterToMailingList {
+    export interface Params {
+      idUser: number;
+      idMailingList: number;
+    }
+    export interface Callback {
+      (err?) : void;
+    }
+  }
 }

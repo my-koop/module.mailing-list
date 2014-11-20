@@ -15,10 +15,11 @@ export function attachControllers(
       validation: validation.mailingListDefinition
     },
     binder.makeSimpleController("addMailingList", function (req: Express.Request) {
-      return {
+      var params: MailingList.AddMailingList.Params = {
         name: req.param("name"),
         description: req.param("description")
       };
+      return params;
     })
   );
 
@@ -28,22 +29,25 @@ export function attachControllers(
       validation: validation.mailingListDefinition
     },
     binder.makeSimpleController("updateMailingList", function (req: Express.Request) {
-      return {
+      var params: MailingList.UpdateMailingList.Params = {
         id: parseInt(req.param("id")),
         name: req.param("name"),
         description: req.param("description")
       };
+      return params;
     })
   );
 
   binder.attach(
     {
-      endPoint: endpoints.mailinglist.delete
+      endPoint: endpoints.mailinglist.delete,
+      validation: validation.mailinglistId
     },
     binder.makeSimpleController("deleteMailingList", function (req: Express.Request) {
-      return {
-        id: req.param("id")
+      var params: MailingList.DeleteMailingList.Params = {
+        id: parseInt(req.param("id"))
       };
+      return params;
     })
   );
 
@@ -52,5 +56,19 @@ export function attachControllers(
       endPoint: endpoints.mailinglist.list
     },
     binder.makeSimpleController("getMailingLists")
+  );
+
+  binder.attach(
+    {
+      endPoint: endpoints.mailinglist.register,
+      validation: validation.mailinglistIdPlusUserId
+    },
+    binder.makeSimpleController("registerToMailingList", function (req: Express.Request) {
+      var params: MailingList.RegisterToMailingList.Params = {
+        idMailingList: parseInt(req.param("id")),
+        idUser: parseInt(req.param("idUser"))
+      };
+      return params;
+    })
   );
 }

@@ -15,6 +15,8 @@ Mykoop module responsible to manage mailing lists
   - See [UpdateMailingLists](#UpdateMailingList)
 - `DELETE /json/mailinglist/:id`
   - See [DeleteMailingLists](#DeleteMailingList)
+- `POST /json/mailinglist/:id/register`
+  - See [RegisterToMailingList](#RegisterToMailingList)
 
 ##Available Methods
 ###AddMailingList
@@ -84,8 +86,12 @@ deleteMailingList(
 - callback: callback once the treatment is done
   - err: Error or null
 - Possible errors:
-  - app.id : `string;`
+  - app.id: `string;`
     - `"invalid"`: id is invalid
+  - validation.id: `string[];`
+    - `"empty"`: mailing list id is missing
+    - `"notAnInteger"`: mailing list id is not an integer
+    - `"NaN"`: mailing list id is not a number
 
 ###GetMailingList
 ```ts
@@ -101,3 +107,33 @@ getMailingLists(
     - id: id of the mailing list
     - name: name of the mailing list
     - description: description of the mailing list
+
+###RegisterToMailingList
+```ts
+registerToMailingList(
+  params: {
+    idUser: number;
+    idMailingList: number;
+  },
+  callback: (err?) => void
+)
+```
+- params:
+  - idUser: id of the user that wants to register to the mailing list
+  - idMailingList: id of the mailing list to register to
+- callback: callback once the treatment is done
+  - err: Error or null
+- Possible errors:
+  - app.idUser: `string;`
+    - `"invalid"`: user id is invalid
+    - `"alreadyRegistered"`: user is already registered to the mailing list
+  - app.idMailingList: `string;`
+    - `"invalid"`: mailing list id is invalid
+  - validation.id: `string[];`
+    - `"empty"`: mailing list id is missing
+    - `"notAnInteger"`: mailing list id is not an integer
+    - `"NaN"`: mailing list id is not a number
+  - validation.idUser: `string[];`
+    - `"empty"`: user id is missing
+    - `"notAnInteger"`: user id is not an integer
+    - `"NaN"`: user id is not a number
