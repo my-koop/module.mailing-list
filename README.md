@@ -8,15 +8,15 @@ Mykoop module responsible to manage mailing lists
 
 ##Endpoints
 - `GET /json/mailinglist`
-  - See [GetMailingLists](#GetMailingList)
+  - See [GetMailingLists](#getmailinglist)
 - `POST /json/mailinglist`
-  - See [AddMailingLists](#AddMailingList)
+  - See [AddMailingLists](#addmailinglist)
 - `PUT /json/mailinglist/:id`
-  - See [UpdateMailingLists](#UpdateMailingList)
+  - See [UpdateMailingLists](#updatemailinglist)
 - `DELETE /json/mailinglist/:id`
-  - See [DeleteMailingLists](#DeleteMailingList)
+  - See [DeleteMailingLists](#deletemailinglist)
 - `POST /json/mailinglist/:id/register`
-  - See [RegisterToMailingList](#RegisterToMailingList)
+  - See [RegisterToMailingList](#registertomailinglist)
 
 ##Available Methods
 ###AddMailingList
