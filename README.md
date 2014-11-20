@@ -26,7 +26,7 @@ addMailingList(
     name: string;
     description?: string;
   },
-  callback: (err?) => void
+  callback: (err?, result?: {id: number}) => void
 );
 ```
 - params:
@@ -34,13 +34,15 @@ addMailingList(
   - description: description of the mailing list
 - callback: callback once the treatment is done
   - err: Error or null
+  - result:
+    - id: id of the newly created mailing list
 - Possible errors:
   - app.name : `string;`
     - `"duplicate"`: name of the mailing already exists
   - validation.name: `string[];`
     - `"empty"`: name is empty
-    - `"tooShort_#"`: name is too short, # is the minimal length
-    - `"tooLong_#"`: name is too long, # is the maximal length
+    - `"tooShort__#__"`: name is too short, # is the minimal length
+    - `"tooLong__#__"`: name is too long, # is the maximal length
 
 ###UpdateMailingList
 ```ts
@@ -69,8 +71,8 @@ updateMailingList(
     - `"NaN"`: id is not a number
   - validation.name: `string[];`
     - `"empty"`: name is empty
-    - `"tooShort_#"`: name is too short, # is the minimal length
-    - `"tooLong_#"`: name is too long, # is the maximal length
+    - `"tooShort__#__"`: name is too short, # is the minimal length
+    - `"tooLong__#__"`: name is too long, # is the maximal length
 
 ###DeleteMailingList
 ```ts

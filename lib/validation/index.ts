@@ -9,7 +9,7 @@ var id = {
     message: "^NaN"
   }
 };
-var requiredId = _.assign(id, {presence: {message: "^empty"}});
+var requiredId = _.assign(_.clone(id), {presence: {message: "^empty"}});
 
 export function mailingListDefinition(obj) {
   var constraint = {
@@ -19,8 +19,8 @@ export function mailingListDefinition(obj) {
       length: {
         minimum: 4,
         maximum: 45,
-        tooShort: "^tooShort_%{count}",
-        tooLong: "^tooLong_%{count}"
+        tooShort: "^tooShort__%{count}__",
+        tooLong: "^tooLong__%{count}__"
       }
     },
     description: {},

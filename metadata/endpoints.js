@@ -12,7 +12,7 @@ var endpoints = {
                 value: "mailingListDefinition"
             }
         },
-        udpate: {
+        update: {
             path: "/mailinglist/:id",
             method: "put",
             validation: {

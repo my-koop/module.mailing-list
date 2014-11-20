@@ -8,7 +8,7 @@ declare module MailingList {
       permissions?: any; // no support for now
     }
     export interface Callback {
-      (err?) : void;
+      (err?, result?: {id: number}) : void;
     }
   }
 

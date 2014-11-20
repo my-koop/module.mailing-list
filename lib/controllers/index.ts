@@ -25,7 +25,7 @@ export function attachControllers(
 
   binder.attach(
     {
-      endPoint: endpoints.mailinglist.udpate,
+      endPoint: endpoints.mailinglist.update,
       validation: validation.mailingListDefinition
     },
     binder.makeSimpleController("updateMailingList", function (req: Express.Request) {

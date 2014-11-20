@@ -49,12 +49,15 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
                 }
               ));
             }
-            callback(err && new DatabaseError(err));
+            callback(
+              err && new DatabaseError(err),
+              res && res.insertId
+            );
           }
         )
       }
-    ], function(err) {
-      callback(err);
+    ], function(err, id: any) {
+      callback(err, {id: id});
     });
   }
 
