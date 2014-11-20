@@ -1,2 +1,21 @@
 {
+  adminEditWelcome: "Listes de diffusion",
+
+  description: "Description",
+  descriptionPlaceholder: "Entrer une description pour cette liste de diffusion",
+
+  updateMailingList: {
+    application: {
+      name: {
+        duplicate: "Ce nom est déjà utilisé"
+      }
+    },
+    validation: {
+      name: {
+        empty: "Le nom ne peut être vide",
+        tooShort: "Le nom doit faire un minimum de __var__ caractères",
+        tooLong: "Le nom doit faire un maximum de __var__ caractères"
+      }
+    }
+  }
 }

@@ -1,2 +1,21 @@
 {
+  adminEditWelcome: "Mailing Lists",
+
+  description: "Description",
+  descriptionPlaceholder: "Enter a description for this mailing list",
+
+  updateMailingList: {
+    application: {
+      name: {
+        duplicate: "This name is already used"
+      }
+    },
+    validation: {
+      name: {
+        empty: "Name cannot be blank",
+        tooShort: "Name must be at least __var__ characters long",
+        tooLong: "Name must be at most __var__ characters long"
+      }
+    }
+  }
 }

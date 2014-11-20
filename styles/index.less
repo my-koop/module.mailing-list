@@ -1,3 +1,34 @@
 // Use for any styles that need to be included in the global site-wide
 // stylesheet. You can use, define or redefine variables and mixins used
 // elsewhere in the project.
+
+
+.textarea-resize-vertical{
+  resize: vertical;
+}
+
+.ml-actions-buttons {
+  z-index: 100;
+}
+
+.ml-name-form {
+  z-index: 99;
+}
+
+@ml-panel-height: 200px;
+
+.ml-new-panel {
+  min-height: @ml-panel-height;
+  max-height: @ml-panel-height;
+  text-align: center;
+  color: @gray-lighter;
+  :hover {
+    color: @gray-dark;
+    cursor: pointer;
+  }
+}
+
+.ml-new {
+  line-height: @ml-panel-height - @panel-body-padding*2;
+  font-size: 6em;
+}
