@@ -9,6 +9,7 @@ var BSListGroup = require("react-bootstrap/ListGroup");
 var BSListGroupItem = require("react-bootstrap/ListGroupItem");
 
 var MKFeedbacki18nMixin = require("mykoop-core/components/Feedbacki18nMixin");
+var MKAlertTrigger = require("mykoop-core/components/AlertTrigger");
 
 var __ = require("language").__;
 var _ = require("lodash");
@@ -56,7 +57,7 @@ var MailingListUserInfo = React.createClass({
           return self.setFeedback(err.i18n, "danger");
         }
         self.setState({
-          registeredMailingLists: res || null,
+          registeredMailingLists: (res && _.indexBy(res, "id")) || null,
           mailingLists: null
         }, function() {
           self.combineRegister();
@@ -79,13 +80,98 @@ var MailingListUserInfo = React.createClass({
     });
   },
 
-  saveChanges: function() {
+  getChanges: function() {
+    var userMailingList = this.state.registeredMailingLists;
+    // Figure out which mailing list was added
+    var newMl = _(this.state.mailingLists).filter(function(ml) {
+      return ml.registered && !userMailingList[ml.id];
+    }).map(function(ml){
+      return ml.id;
+    }).value();
 
+    // Figure out which mailing was removed
+    var removedMl = _(this.state.mailingLists).filter(function(ml) {
+      return !ml.registered && userMailingList[ml.id];
+    }).map(function(ml){
+      return  ml.id;
+    }).value();
+
+    return {
+      newMl: newMl,
+      removedMl: removedMl
+    };
+  },
+
+  hasChanges: function() {
+    var changes = this.getChanges();
+    return !_.isEmpty(changes.newMl) || !_.isEmpty(changes.removedMl);
+  },
+
+  saveChanges: function() {
+    var self = this;
+    var changes = this.getChanges();
+
+    // Inital setup to update added and removed mailing list
+    var updates = [];
+    if(!_.isEmpty(changes.newMl)) {
+      updates.push({
+        data: changes.newMl,
+        action: actions.user.mailinglist.register,
+      });
+    }
+    if(!_.isEmpty(changes.removedMl)) {
+      updates.push({
+        data: changes.removedMl,
+        action: actions.user.mailinglist.unregister,
+      });
+    }
+
+    // To be called only once after all updates are done
+    var successCallback = _.after(updates.length, function() {
+      self.setState({
+        registeredMailingLists: _(self.state.mailingLists)
+          .filter(function(ml) {
+            return ml.registered;
+          })
+          .map(function(ml) {
+            return {
+              id: ml.id
+            }
+          })
+          .indexBy("id")
+          .value(),
+        busy: false
+      }, function() {
+        // just make sure everything is in order
+        self.combineRegister();
+        MKAlertTrigger.showAlert(__("success"));
+      });
+    });
+
+    self.setState({
+      busy: true
+    }, function() {
+      // Execute all updates
+      _.each(updates, function(upd) {
+        var data = upd.data;
+        upd.action({
+          data: {
+            idMailingLists: data,
+            id: self.props.userId
+          }
+        }, function(err) {
+          if(err) {
+            return MKAlertTrigger.showAlert(__("errors::error", {context: err.context}));
+          }
+          successCallback();
+        });
+      });
+    });
   },
 
   combineRegister: function() {
     if(this.state.registeredMailingLists && this.state.allMailingLists) {
-      var userMailingList = _.indexBy(this.state.registeredMailingLists, "id");
+      var userMailingList = this.state.registeredMailingLists;
       var mailingLists = _.map(this.state.allMailingLists, function(ml) {
         return _.merge(ml, {registered: !!userMailingList[ml.id]});
       });
@@ -137,6 +223,7 @@ var MailingListUserInfo = React.createClass({
         <BSButton
           bsStyle="primary"
           onClick={this.saveChanges}
+          disabled={this.state.busy || !this.hasChanges()}
         >
           {__("save")}
         </BSButton>
