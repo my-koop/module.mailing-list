@@ -3,7 +3,7 @@ import endpoints = require("../../metadata/endpoints");
 import utils = require("mykoop-utils");
 
 import validation = require("../validation/index");
-
+import _ = require("lodash");
 // Controllers.
 
 export function attachControllers(
@@ -60,13 +60,15 @@ export function attachControllers(
 
   binder.attach(
     {
-      endPoint: endpoints.mailinglist.register,
-      validation: validation.mailinglistIdPlusUserId
+      endPoint: endpoints.user.mailinglist.register
     },
-    binder.makeSimpleController("registerToMailingList", function (req: Express.Request) {
-      var params: MailingList.RegisterToMailingList.Params = {
-        idMailingList: parseInt(req.param("id")),
-        idUser: parseInt(req.param("idUser"))
+    binder.makeSimpleController("registerToMailingLists", function (req: Express.Request) {
+      console.log("Registering to mailing list", req.param("idMailingLists"));
+      var params: MailingList.RegisterToMailingLists.Params = {
+        idMailingLists: _.map(req.param("idMailingLists"), function(id: string) {
+          return parseInt(id);
+        }),
+        idUser: parseInt(req.param("id"))
       };
       return params;
     })
@@ -74,7 +76,23 @@ export function attachControllers(
 
   binder.attach(
     {
-      endPoint: endpoints.user.mailinglist,
+      endPoint: endpoints.user.mailinglist.unregister
+    },
+    binder.makeSimpleController("unregisterToMailingLists", function (req: Express.Request) {
+      console.log("Unregistering to mailing list", req.param("idMailingLists"));
+      var params: MailingList.RegisterToMailingLists.Params = {
+        idMailingLists: _.map(req.param("idMailingLists"), function(id: string) {
+          return parseInt(id);
+        }),
+        idUser: parseInt(req.param("id"))
+      };
+      return params;
+    })
+  );
+
+  binder.attach(
+    {
+      endPoint: endpoints.user.mailinglist.list,
       validation: validation.mailinglistId
     },
     binder.makeSimpleController("getUserMailingLists", function (req: Express.Request) {

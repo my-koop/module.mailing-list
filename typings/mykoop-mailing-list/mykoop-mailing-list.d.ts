@@ -48,14 +48,24 @@ declare module mkmailinglist {
       callback: MailingList.UpdateMailingList.Callback
     );
 
-    registerToMailingList(
-      params: MailingList.RegisterToMailingList.Params,
-      callback: MailingList.RegisterToMailingList.Callback
+    registerToMailingLists(
+      params: MailingList.RegisterToMailingLists.Params,
+      callback: MailingList.RegisterToMailingLists.Callback
     );
-    __registerToMailingList(
+    __registerToMailingLists(
       connection: mysql.IConnection,
-      params: MailingList.RegisterToMailingList.Params,
-      callback: MailingList.RegisterToMailingList.Callback
+      params: MailingList.RegisterToMailingLists.Params,
+      callback: MailingList.RegisterToMailingLists.Callback
+    );
+
+    unregisterToMailingLists(
+      params: MailingList.UnregisterToMailingLists.Params,
+      callback: MailingList.UnregisterToMailingLists.Callback
+    );
+    __unregisterToMailingLists(
+      connection: mysql.IConnection,
+      params: MailingList.UnregisterToMailingLists.Params,
+      callback: MailingList.UnregisterToMailingLists.Callback
     );
 
   }

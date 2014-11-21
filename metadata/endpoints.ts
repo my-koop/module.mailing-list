@@ -27,23 +27,25 @@ var endpoints = {
         resolve: "validation",
         value: "mailinglistId"
       }
-    },
-    register: {
-      path: "/mailinglists/:id/register",
-      method: "post",
-      validation: {
-        resolve: "validation",
-        value: "mailinglistIdPlusUserId"
-      }
     }
   },
   user: {
     mailinglist: {
-      path: "/users/:id/mailinglists",
-      method: "get",
-      validation: {
-        resolve: "validation",
-        value: "mailinglistId"
+      list: {
+        path: "/users/:id/mailinglists",
+        method: "get",
+        validation: {
+          resolve: "validation",
+          value: "mailinglistId"
+        }
+      },
+      register: {
+        path: "/users/:id/mailinglists",
+        method: "post"
+      },
+      unregister: {
+        path: "/users/:id/mailinglists",
+        method: "delete"
       }
     }
   }

@@ -45,10 +45,20 @@ declare module MailingList {
     }
   }
 
-  module RegisterToMailingList {
+  module RegisterToMailingLists {
     export interface Params {
       idUser: number;
-      idMailingList: number;
+      idMailingLists: number[];
+    }
+    export interface Callback {
+      (err?) : void;
+    }
+  }
+
+  module UnregisterToMailingLists {
+    export interface Params {
+      idUser: number;
+      idMailingLists: number[];
     }
     export interface Callback {
       (err?) : void;

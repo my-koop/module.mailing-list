@@ -194,23 +194,24 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
     });
   }
 
-  registerToMailingList(
-    params: MailingList.RegisterToMailingList.Params,
-    callback: MailingList.RegisterToMailingList.Callback
+  registerToMailingLists(
+    params: MailingList.RegisterToMailingLists.Params,
+    callback: MailingList.RegisterToMailingLists.Callback
   ) {
     this.callWithConnection(
-      this.__registerToMailingList,
+      this.__registerToMailingLists,
       params,
       callback
     );
   }
 
-  __registerToMailingList(
+  __registerToMailingLists(
     connection: mysql.IConnection,
-    params: MailingList.RegisterToMailingList.Params,
-    callback: MailingList.RegisterToMailingList.Callback
+    params: MailingList.RegisterToMailingLists.Params,
+    callback: MailingList.RegisterToMailingLists.Callback
   ) {
     var self = this;
+    logger.debug("User registering to mailing lists", params);
     async.waterfall([
       function(callback) {
         self.user.__userExists(connection, {id: params.idUser}, function(err) {
@@ -218,28 +219,78 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
         });
       },
       function(callback) {
-        var mailingListUser = {
-          idUser: params.idUser,
-          idMailingList: params.idMailingList
-        }
-        connection.query(
-          "INSERT INTO mailinglist_users set ?",
-          [mailingListUser],
-          function(err, res) {
-            if(err) {
-              if(err.code === "ER_NO_REFERENCED_ROW_2") {
-                return callback(new ApplicationError(err, {idUser: "invalid"}));
+        async.eachSeries(params.idMailingLists, function(id, next) {
+          var mailingListUser = {
+            idUser: params.idUser,
+            idMailingList: id
+          };
+          logger.debug("User registering to mailing list %d", id);
+          connection.query(
+            "INSERT INTO mailinglist_users set ?",
+            [mailingListUser],
+            function(err, res) {
+              if(err) {
+                //accepted errors
+                if(err.code === "ER_NO_REFERENCED_ROW_2" || // invalid mailing list
+                  err.code === "ER_NO_REFERENCED_ROW_" ||
+                  err.code === "ER_NO_REFERENCED_ROW" ||
+                  err.code === "ER_DUP_ENTRY" // already registered
+                ) {
+                  return next(null, null);
+                } else {
+                  return next(new DatabaseError(err), null);
+                }
               }
-              if(err.code === "ER_NO_REFERENCED_ROW_") {
-                return callback(new ApplicationError(err, {idMailingList: "invalid"}));
-              }
-              if(err.code === "ER_DUP_ENTRY") {
-                return callback(new ApplicationError(err, {idUser: "alreadyRegistered"}));
-              }
+              next(null, null);
             }
-            callback(err && new DatabaseError(err));
-          }
-        )
+          )
+        }, function(err) {
+          callback(err);
+        });
+      }
+    ],
+    function(err) {
+      callback(err)
+    });
+  }
+
+  unregisterToMailingLists(
+    params: MailingList.RegisterToMailingLists.Params,
+    callback: MailingList.RegisterToMailingLists.Callback
+  ) {
+    this.callWithConnection(
+      this.__unregisterToMailingLists,
+      params,
+      callback
+    );
+  }
+
+  __unregisterToMailingLists(
+    connection: mysql.IConnection,
+    params: MailingList.RegisterToMailingLists.Params,
+    callback: MailingList.RegisterToMailingLists.Callback
+  ) {
+    var self = this;
+    logger.debug("User unregistering to mailing lists", params);
+    async.waterfall([
+      function(callback) {
+        self.user.__userExists(connection, {id: params.idUser}, function(err) {
+          callback(err && new ApplicationError(err, {idUser: "invalid"}));
+        });
+      },
+      function(callback) {
+        async.eachSeries(params.idMailingLists, function(id, next) {
+          logger.debug("User unregistering to mailing list %d", id);
+          connection.query(
+            "DELETE FROM mailinglist_users WHERE idUser=? AND idMailingList=?",
+            [params.idUser, id],
+            function(err, res) {
+              next(err && new DatabaseError(err), null);
+            }
+          )
+        }, function(err) {
+          callback(err);
+        });
       }
     ],
     function(err) {
