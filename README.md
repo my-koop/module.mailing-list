@@ -7,17 +7,19 @@ Mykoop module responsible to manage mailing lists
 #Documentation
 
 ##Endpoints
-- `GET /json/mailinglist`
+- `GET /json/mailinglists`
   - See [GetMailingLists](#getmailinglist)
-- `POST /json/mailinglist`
+- `POST /json/mailinglists`
   - See [AddMailingLists](#addmailinglist)
-- `PUT /json/mailinglist/:id`
+- `PUT /json/mailinglists/:id`
   - See [UpdateMailingLists](#updatemailinglist)
-- `DELETE /json/mailinglist/:id`
+- `DELETE /json/mailinglists/:id`
   - See [DeleteMailingLists](#deletemailinglist)
-- `POST /json/mailinglist/:id/register`
-  - See [RegisterToMailingList](#registertomailinglist)
-- `GET /users/:id/mailinglists`
+- `POST /json/users/:id/mailinglists`
+  - See [RegisterToMailingLists](#registertomailinglists)
+- `DELETE /json/users/:id/mailinglists`
+  - See [UnregisterToMailingLists](#unregistertomailinglists)
+- `GET /json/users/:id/mailinglists`
   - See [GetUserMailingLists](#getusermailinglists)
 
 ##Available Methods
@@ -122,30 +124,33 @@ Register the user to the mailing list
 registerToMailingList(
   params: {
     idUser: number;
-    idMailingList: number;
+    idMailingList: number[];
   },
   callback: (err?) => void
 )
 ```
 - params:
   - idUser: id of the user that wants to register to the mailing list
-  - idMailingList: id of the mailing list to register to
+  - idMailingList: list of id of the mailing lists to register to
 - callback: callback once the treatment is done
   - err: Error or null
-- Possible errors:
-  - app.idUser: `string;`
-    - `"invalid"`: user id is invalid
-    - `"alreadyRegistered"`: user is already registered to the mailing list
-  - app.idMailingList: `string;`
-    - `"invalid"`: mailing list id is invalid
-  - validation.id: `string[];`
-    - `"empty"`: mailing list id is missing
-    - `"notAnInteger"`: mailing list id is not an integer
-    - `"NaN"`: mailing list id is not a number
-  - validation.idUser: `string[];`
-    - `"empty"`: user id is missing
-    - `"notAnInteger"`: user id is not an integer
-    - `"NaN"`: user id is not a number
+
+###UnregisterToMailingList
+Unregister the user of the mailing lists
+```ts
+unregisterToMailingList(
+  params: {
+    idUser: number;
+    idMailingList: number[];
+  },
+  callback: (err?) => void
+)
+```
+- params:
+  - idUser: id of the user
+  - idMailingList: list of id of the mailing lists to unregister from
+- callback: callback once the treatment is done
+  - err: Error or null
 
 ###GetUserMailingLists
 Get all the mailing list the user is registered to
