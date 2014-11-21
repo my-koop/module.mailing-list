@@ -8,13 +8,14 @@ var BSInput  = require("react-bootstrap/Input");
 
 var MKListModButtons = require("mykoop-core/components/ListModButtons");
 var MKAlert = require("mykoop-core/components/Alert");
+var MKFeedbacki18nMixin = require("mykoop-core/components/Feedbacki18nMixin");
 
 var __ = require("language").__;
 var _ = require("lodash");
 var actions = require("actions");
 
 var MailingListEditPanel = React.createClass({
-  mixins: [React.addons.LinkedStateMixin],
+  mixins: [React.addons.LinkedStateMixin, MKFeedbacki18nMixin],
 
   propTypes: {
     idLink: React.PropTypes.shape({
@@ -34,11 +35,7 @@ var MailingListEditPanel = React.createClass({
   },
 
   getInitialState: function() {
-    return _.merge(this.getValues(), {
-      feedback: {
-        i18n: []
-      }
-    });
+    return this.getValues();
   },
 
   componentWillReceiveProps: function (nextProps) {
@@ -48,8 +45,9 @@ var MailingListEditPanel = React.createClass({
         nextProps.idLink.value !== this.props.idLink.value &&
         this.props.idLink.value !== -1
     ) {
+      // FIXME:: do not modify this.props directly
       this.props = nextProps;
-      this.setState(_.merge(this.getValues(), {feedback: {i18n: []}}));
+      this.setState(this.getValues());
     }
   },
 
@@ -79,7 +77,7 @@ var MailingListEditPanel = React.createClass({
     action({
       i18nErrors: {
         keys: ["app", "validation"],
-        prefix: "mailinglist::updateMailingList."
+        prefix: "mailinglist::errors"
       },
       data: {
         id: !isNew ? this.getField("id") : undefined,
@@ -89,16 +87,11 @@ var MailingListEditPanel = React.createClass({
     }, function(err, res) {
       if(err) {
         console.log(err);
-        return self.setState({
-          feedback: {
-            i18n: err.i18n,
-            style: "danger"
-          }
-        });
+        return self.setFeedback(err.i18n, "danger");
       }
 
+      self.setFeedback({key: "success"}, "success");
       self.setState(_.merge(self.getValues(), {
-        feedback: {i18n: [{key: "success"}], style: "success"},
         id: isNew ? res.id : self.state.id
       }), function() {
         if(isNew) {
@@ -117,29 +110,16 @@ var MailingListEditPanel = React.createClass({
     actions.mailinglist.delete({
         i18nErrors: {
           keys: ["app", "validation"],
-          prefix: "mailinglist::updateMailingList."
+          prefix: "mailinglist::errors"
         },
         data: {
           id: this.getField("id")
         }
     }, function(err) {
       if(err) {
-        return self.setState({
-          feedback: {
-            i18n: err.i18n,
-            style: "danger"
-          }
-        });
+        return self.setFeedback(err.i18n, "danger");
       }
       self.props.onDelete && self.props.onDelete();
-    });
-  },
-
-  clearMessage: function() {
-    this.setState({
-      feedback: {
-        i18n: []
-      }
     });
   },
 
@@ -175,17 +155,10 @@ var MailingListEditPanel = React.createClass({
       buttonsConfig[1].icon =  "remove";
       buttonsConfig[1].warningMessage = __("areYouSure");
     }
-    var message = !_.isEmpty(this.state.feedback.i18n) ?
-      _.map(this.state.feedback.i18n, function(f, i) {
-        return <div key={i}>{__(f.key, {context: f.context, var: f.var})}</div>;
-      })
-    : null;
 
     return (
       <BSPanel className="ml-edit-min-height">
-        <MKAlert bsStyle={this.state.feedback.style} onHide={this.clearMessage}>
-          {message}
-        </MKAlert>
+        {this.renderFeedback()}
         <BSGrid className="mailingListPanel" fluid>
           <BSRow>
             <BSCol md={4} className="pull-right ml-actions-buttons">

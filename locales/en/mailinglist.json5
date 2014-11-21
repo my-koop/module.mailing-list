@@ -6,7 +6,7 @@
   deleteMailingListWarning: "Warning! Deletion of a mailing list removes all users linked to it. $t(areYouSure)",
   mailingListTab: "Mailing lists",
 
-  updateMailingList: {
+  errors: {
     app: {
       name: {
         duplicate: "This name is already used"
@@ -15,8 +15,8 @@
     validation: {
       name: {
         empty: "Name cannot be blank",
-        tooShort: "Name must be at least __var__ characters long",
-        tooLong: "Name must be at most __var__ characters long"
+        tooShort: "Name must be at least __variable__ characters long",
+        tooLong: "Name must be at most __variable__ characters long"
       }
     }
   }

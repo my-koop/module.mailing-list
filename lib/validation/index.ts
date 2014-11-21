@@ -6,7 +6,7 @@ var validate = commons.validation;
 var id = {
   numericality: {
     onlyInteger: {message: "^notAnInteger"},
-    message: "^NaN"
+    message: "^notAnInteger"
   }
 };
 var requiredId = _.assign(_.clone(id), {presence: {message: "^empty"}});

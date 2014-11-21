@@ -7,7 +7,7 @@
  $t(areYouSure)",
   mailingListTab: "Listes de diffusion",
 
-  updateMailingList: {
+  errors: {
     app: {
       name: {
         duplicate: "Ce nom est déjà utilisé"
@@ -16,8 +16,8 @@
     validation: {
       name: {
         empty: "Le nom ne peut être vide",
-        tooShort: "Le nom doit faire un minimum de __var__ caractères",
-        tooLong: "Le nom doit faire un maximum de __var__ caractères"
+        tooShort: "Le nom doit faire un minimum de __variable__ caractères",
+        tooLong: "Le nom doit faire un maximum de __variable__ caractères"
       }
     }
   }

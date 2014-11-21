@@ -216,7 +216,7 @@ var MailingListUserInfo = React.createClass({
 
     return (
       <div>
-        {this.getFeedback()}
+        {this.renderFeedback()}
         <BSListGroup>
           {mailingListsContent}
         </BSListGroup>

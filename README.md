@@ -74,7 +74,6 @@ updateMailingList(
     - `"invalid"`: id is invalid
   - validation.id: `string[];`
     - `"notAnInteger"`: id is not an integer
-    - `"NaN"`: id is not a number
   - validation.name: `string[];`
     - `"empty"`: name is empty
     - `"tooShort__#__"`: name is too short, # is the minimal length
@@ -100,7 +99,6 @@ deleteMailingList(
   - validation.id: `string[];`
     - `"empty"`: mailing list id is missing
     - `"notAnInteger"`: mailing list id is not an integer
-    - `"NaN"`: mailing list id is not a number
 
 ###GetMailingList
 Retrieves all the mailing list available
