@@ -43,7 +43,7 @@ addMailingList(
     - id: id of the newly created mailing list
 - Possible errors:
   - app.name : `string;`
-    - `"duplicate"`: name of the mailing already exists
+    - `"duplicate"`: name of the mailing list already exists
   - validation.name: `string[];`
     - `"empty"`: name is empty
     - `"tooShort__#__"`: name is too short, # is the minimal length
@@ -63,13 +63,13 @@ updateMailingList(
 ```
 - params:
   - id: id of the mailing list
-  - name: name of the mailing list
-  - description: description of the mailing list
+  - name: new name of the mailing list
+  - description: new description of the mailing list
 - callback: callback once the treatment is done
   - err: Error or null
 - Possible errors:
   - app.name : `string;`
-    - `"duplicate"`: name of the mailing already exists
+    - `"duplicate"`: name of the mailing list already exists
   - app.id: `string;`
     - `"invalid"`: id is invalid
   - validation.id: `string[];`

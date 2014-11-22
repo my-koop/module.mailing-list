@@ -248,10 +248,7 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
           callback(err);
         });
       }
-    ],
-    function(err) {
-      callback(err)
-    });
+    ], callback);
   }
 
   unregisterToMailingLists(

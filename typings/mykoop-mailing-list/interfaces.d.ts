@@ -22,8 +22,7 @@ declare module MailingList {
   }
 
   module GetMailingList {
-    export interface Params {
-    }
+    export interface Params {}
     export interface Callback {
       (err?, result?: {
         id: number;

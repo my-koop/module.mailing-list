@@ -9,6 +9,7 @@ var id = {
     message: "^notAnInteger"
   }
 };
+// id needs to be cloned because _.assign modifies the source
 var requiredId = _.assign(_.clone(id), {presence: {message: "^empty"}});
 
 export function mailingListDefinition(obj) {
@@ -36,10 +37,3 @@ export function mailinglistId(obj) {
   return validate(obj, constraint);
 }
 
-export function mailinglistIdPlusUserId(obj) {
-  var constraint = {
-    id: requiredId,
-    idUser: requiredId
-  }
-  return validate(obj, constraint);
-}
