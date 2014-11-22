@@ -81,7 +81,7 @@ var MailingListUserInfo = React.createClass({
   },
 
   getChanges: function() {
-    var userMailingList = this.state.registeredMailingLists;
+    var userMailingList = this.state.registeredMailingLists || {};
     // Figure out which mailing list was added
     var newMl = _(this.state.mailingLists).filter(function(ml) {
       return ml.registered && !userMailingList[ml.id];
