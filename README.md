@@ -30,6 +30,7 @@ addMailingList(
   params: {
     name: string;
     description?: string;
+    showAtRegistration: boolean;
   },
   callback: (err?, result?: {id: number}) => void
 );
@@ -37,6 +38,7 @@ addMailingList(
 - params:
   - name: name of the mailing list
   - description: description of the mailing list
+  - showAtRegistration: flag to indicate if this mailing should appear in the user registration form
 - callback: callback once the treatment is done
   - err: Error or null
   - result:
@@ -57,6 +59,7 @@ updateMailingList(
     id: number;
     name: string;
     description?: string;
+    showAtRegistration: boolean;
   },
   callback: (err?) => void
 )
@@ -65,6 +68,7 @@ updateMailingList(
   - id: id of the mailing list
   - name: new name of the mailing list
   - description: new description of the mailing list
+  - showAtRegistration: flag to indicate if this mailing should appear in the user registration form
 - callback: callback once the treatment is done
   - err: Error or null
 - Possible errors:

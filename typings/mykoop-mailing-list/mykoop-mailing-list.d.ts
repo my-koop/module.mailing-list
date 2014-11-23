@@ -38,6 +38,17 @@ declare module mkmailinglist {
       callback: MailingList.GetMailingList.Callback
     );
 
+    getUserMailingLists (
+      params: MailingList.GetUserMailingLists.Params,
+      callback: MailingList.GetUserMailingLists.Callback
+    );
+
+    __getUserMailingLists (
+      connection: mysql.IConnection,
+      params: MailingList.GetUserMailingLists.Params,
+      callback: MailingList.GetUserMailingLists.Callback
+    );
+
     updateMailingList(
       params: MailingList.UpdateMailingList.Params,
       callback: MailingList.UpdateMailingList.Callback

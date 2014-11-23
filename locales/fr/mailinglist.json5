@@ -3,8 +3,7 @@
 
   description: "Description",
   descriptionPlaceholder: "Entrer une description pour cette liste de diffusion",
-  deleteMailingListWarning: "Attention! La suppression d'une liste de diffusion retire tous les utilisateurs associés.\
- $t(areYouSure)",
+  deleteMailingListWarning: "Attention! La suppression d'une liste de diffusion retire tous les utilisateurs associés. $t(areYouSure)",
   mailingListTab: "Listes de diffusion",
 
   errors: {

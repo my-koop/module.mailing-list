@@ -6,6 +6,7 @@ declare module MailingList {
       name: string;
       description?: string;
       permissions?: any; // no support for now
+      showAtRegistration: boolean;
     }
     export interface Callback {
       (err?, result?: {id: number}) : void;
@@ -28,6 +29,7 @@ declare module MailingList {
         id: number;
         name: string;
         description: string;
+        showAtRegistration: boolean;
       }[]) : void;
     }
   }
@@ -38,6 +40,7 @@ declare module MailingList {
       name: string;
       description?: string;
       permissions?: any; // no support for now
+      showAtRegistration: boolean;
     }
     export interface Callback {
       (err?) : void;

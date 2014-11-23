@@ -28,7 +28,11 @@ var MailingListAdminPage = React.createClass({
         MKAlertTrigger.showAlert(__("errors::error", {context: err.context}));
         return;
       }
-
+      // sort them by name at least on load. Won't keep order after
+      // to avoid seeing the mailing lists move around if their names are changed
+      res = _.sortBy(res, function(ml) {
+        return ml.name.toLowerCase();
+      })
       self.setState({
         mailingLists: res
       })
