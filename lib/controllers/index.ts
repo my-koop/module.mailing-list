@@ -9,13 +9,13 @@ import _ = require("lodash");
 export function attachControllers(
   binder: utils.ModuleControllersBinder<mkmailinglist.Module>
 ) {
-  var ml = binder.moduleInstance;
+  var mailingList = binder.moduleInstance;
   binder.attach(
     {
       endPoint: endpoints.mailinglist.add,
       validation: validation.mailingListDefinition
     },
-    binder.makeSimpleController(ml.addMailingList, function (req: Express.Request) {
+    binder.makeSimpleController(mailingList.addMailingList, function (req: Express.Request) {
       var params: MailingList.AddMailingList.Params = {
         showAtRegistration: !!req.param("showAtRegistration", false),
         name: req.param("name"),
@@ -30,7 +30,7 @@ export function attachControllers(
       endPoint: endpoints.mailinglist.update,
       validation: validation.mailingListDefinition
     },
-    binder.makeSimpleController(ml.updateMailingList, function (req: Express.Request) {
+    binder.makeSimpleController(mailingList.updateMailingList, function (req: Express.Request) {
       var params: MailingList.UpdateMailingList.Params = {
         id: parseInt(req.param("id")),
         name: req.param("name"),
@@ -46,7 +46,7 @@ export function attachControllers(
       endPoint: endpoints.mailinglist.delete,
       validation: validation.mailinglistId
     },
-    binder.makeSimpleController(ml.deleteMailingList, function (req: Express.Request) {
+    binder.makeSimpleController(mailingList.deleteMailingList, function (req: Express.Request) {
       var params: MailingList.DeleteMailingList.Params = {
         id: parseInt(req.param("id"))
       };
@@ -58,14 +58,14 @@ export function attachControllers(
     {
       endPoint: endpoints.mailinglist.list
     },
-    binder.makeSimpleController(ml.getMailingLists)
+    binder.makeSimpleController(mailingList.getMailingLists)
   );
 
   binder.attach(
     {
       endPoint: endpoints.user.mailinglist.register
     },
-    binder.makeSimpleController(ml.registerToMailingLists, function (req: Express.Request) {
+    binder.makeSimpleController(mailingList.registerToMailingLists, function (req: Express.Request) {
       var params: MailingList.RegisterToMailingLists.Params = {
         idMailingLists: _.map(req.param("idMailingLists"), function(id: string) {
           return parseInt(id);
@@ -80,7 +80,7 @@ export function attachControllers(
     {
       endPoint: endpoints.user.mailinglist.unregister
     },
-    binder.makeSimpleController(ml.unregisterToMailingLists, function (req: Express.Request) {
+    binder.makeSimpleController(mailingList.unregisterToMailingLists, function (req: Express.Request) {
       var params: MailingList.RegisterToMailingLists.Params = {
         idMailingLists: _.map(req.param("idMailingLists"), function(id: string) {
           return parseInt(id);
@@ -96,7 +96,7 @@ export function attachControllers(
       endPoint: endpoints.user.mailinglist.list,
       validation: validation.mailinglistId
     },
-    binder.makeSimpleController(ml.getUserMailingLists, function (req: Express.Request) {
+    binder.makeSimpleController(mailingList.getUserMailingLists, function (req: Express.Request) {
       var params: MailingList.GetUserMailingLists.Params = {
         id: parseInt(req.param("id"))
       };

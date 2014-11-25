@@ -83,17 +83,17 @@ var MailingListUserInfo = React.createClass({
   getChanges: function() {
     var userMailingList = this.state.registeredMailingLists || {};
     // Figure out which mailing list was added
-    var newMl = _(this.state.mailingLists).filter(function(ml) {
-      return ml.registered && !userMailingList[ml.id];
-    }).map(function(ml){
-      return ml.id;
+    var newMl = _(this.state.mailingLists).filter(function(mailingList) {
+      return mailingList.registered && !userMailingList[mailingList.id];
+    }).map(function(mailingList){
+      return mailingList.id;
     }).value();
 
     // Figure out which mailing was removed
-    var removedMl = _(this.state.mailingLists).filter(function(ml) {
-      return !ml.registered && userMailingList[ml.id];
-    }).map(function(ml){
-      return  ml.id;
+    var removedMl = _(this.state.mailingLists).filter(function(mailingList) {
+      return !mailingList.registered && userMailingList[mailingList.id];
+    }).map(function(mailingList){
+      return  mailingList.id;
     }).value();
 
     return {
@@ -130,12 +130,12 @@ var MailingListUserInfo = React.createClass({
     var successCallback = _.after(updates.length, function() {
       self.setState({
         registeredMailingLists: _(self.state.mailingLists)
-          .filter(function(ml) {
-            return ml.registered;
+          .filter(function(mailingList) {
+            return mailingList.registered;
           })
-          .map(function(ml) {
+          .map(function(mailingList) {
             return {
-              id: ml.id
+              id: mailingList.id
             }
           })
           .indexBy("id")
@@ -172,8 +172,8 @@ var MailingListUserInfo = React.createClass({
   combineRegister: function() {
     if(this.state.registeredMailingLists && this.state.allMailingLists) {
       var userMailingList = this.state.registeredMailingLists;
-      var mailingLists = _.map(this.state.allMailingLists, function(ml) {
-        return _.merge(ml, {registered: !!userMailingList[ml.id]});
+      var mailingLists = _.map(this.state.allMailingLists, function(mailingList) {
+        return _.merge(mailingList, {registered: !!userMailingList[mailingList.id]});
       });
       this.setState({
         mailingLists: mailingLists
@@ -186,17 +186,17 @@ var MailingListUserInfo = React.createClass({
 
     var mailingListsContent = null;
     if(this.state.mailingLists) {
-      mailingListsContent = _.map(this.state.mailingLists, function(ml) {
+      mailingListsContent = _.map(this.state.mailingLists, function(mailingList) {
         var valueLink = {
-          value: ml.registered,
+          value: mailingList.registered,
           requestChange: function(newRegistered) {
-            ml.registered = newRegistered;
+            mailingList.registered = newRegistered;
             self.setState({
               mailingLists: self.state.mailingLists
             });
           }
         }
-        var label = <strong>{ml.name}</strong>;
+        var label = <strong>{mailingList.name}</strong>;
         var input = (
           <BSInput
             type="checkbox"
@@ -205,9 +205,9 @@ var MailingListUserInfo = React.createClass({
           />
         );
         return (
-          <BSListGroupItem header={input} key={ml.id}>
+          <BSListGroupItem header={input} key={mailingList.id}>
             <i>
-              {ml.description}
+              {mailingList.description}
             </i>
           </BSListGroupItem>
         );

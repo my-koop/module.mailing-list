@@ -30,8 +30,8 @@ var MailingListAdminPage = React.createClass({
       }
       // sort them by name at least on load. Won't keep order after
       // to avoid seeing the mailing lists move around if their names are changed
-      res = _.sortBy(res, function(ml) {
-        return ml.name.toLowerCase();
+      res = _.sortBy(res, function(mailingList) {
+        return mailingList.name.toLowerCase();
       })
       self.setState({
         mailingLists: res
@@ -51,37 +51,37 @@ var MailingListAdminPage = React.createClass({
   },
 
   mailingListDeleted: function(iMailingList) {
-    var mls = this.state.mailingLists;
+    var mailingLists = this.state.mailingLists;
     // inline remove of an item
-    mls.splice(iMailingList, 1);
+    mailingLists.splice(iMailingList, 1);
     this.setState({
-      mailingLists: mls
+      mailingLists: mailingLists
     });
   },
 
-  requestChange: function(ml, field, newValue) {
-    ml[field] = newValue;
+  requestChange: function(mailingList, field, newValue) {
+    mailingList[field] = newValue;
     this.setState({
       mailingLists: this.state.mailingLists
     });
   },
 
-  makeValueLink: function(ml, field) {
+  makeValueLink: function(mailingList, field) {
     return {
-      value: ml[field],
-      requestChange: _.bind(this.requestChange, this, ml, field)
+      value: mailingList[field],
+      requestChange: _.bind(this.requestChange, this, mailingList, field)
     }
   },
 
   render: function() {
     var self = this;
-    var mailingLists = _.map(this.state.mailingLists, function(ml, i) {
+    var mailingLists = _.map(this.state.mailingLists, function(mailingList, i) {
       return (
         <BSCol md={4} sm={6} key={i}>
           <MKMailingListEditPanel
-            idLink={self.makeValueLink(ml, "id")}
-            nameLink={self.makeValueLink(ml, "name")}
-            descriptionLink={self.makeValueLink(ml, "description")}
+            idLink={self.makeValueLink(mailingList, "id")}
+            nameLink={self.makeValueLink(mailingList, "name")}
+            descriptionLink={self.makeValueLink(mailingList, "description")}
             onDelete={_.bind(self.mailingListDeleted, self, i)}
           />
         </BSCol>
@@ -95,8 +95,8 @@ var MailingListAdminPage = React.createClass({
         <BSRow>
           {mailingLists}
           <BSCol md={4} sm={6} key={mailingLists.length}>
-            <BSPanel className="ml-new-panel" onClick={this.createNewMailingList}>
-              <MKIcon glyph="plus-circle" className="ml-new" />
+            <BSPanel className="mailingList-new-panel" onClick={this.createNewMailingList}>
+              <MKIcon glyph="plus-circle" className="mailingList-new" />
             </BSPanel>
           </BSCol>
         </BSRow>

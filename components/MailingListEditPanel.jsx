@@ -157,17 +157,17 @@ var MailingListEditPanel = React.createClass({
     }
 
     return (
-      <BSPanel className="ml-edit-min-height">
+      <BSPanel className="mailingList-edit-min-height">
         {this.renderFeedback()}
         <BSGrid className="mailingListPanel" fluid>
           <BSRow>
-            <BSCol md={4} className="pull-right ml-actions-buttons">
+            <BSCol md={4} className="pull-right mailingList-actions-buttons">
               <MKListModButtons
                 className="pull-right"
                 buttons={buttonsConfig}
               />
             </BSCol>
-            <BSCol md={8} className="ml-name-form">
+            <BSCol md={8} className="mailingList-name-form">
               <BSInput
                 type="text"
                 label={__("name")}
