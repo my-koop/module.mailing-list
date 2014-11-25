@@ -3,7 +3,7 @@
 
   description: "Description",
   descriptionPlaceholder: "Enter a description for this mailing list",
-  deleteMailingListWarning: "Warning! Deletion of a mailing list removes all users linked to it. $t(areYouSure)",
+  deleteMailingListWarning: "Warning! Deleting a mailing list removes all users linked to it. $t(areYouSure)",
   mailingListTab: "Mailing lists",
 
   errors: {

@@ -95,9 +95,7 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
           }
         )
       }
-    ], function(err) {
-      callback(err);
-    });
+    ], callback);
   }
 
   getMailingLists(
@@ -189,9 +187,7 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
           }
         )
       }
-    ], function(err) {
-      callback(err);
-    });
+    ], callback);
   }
 
   registerToMailingLists(
@@ -237,16 +233,13 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
                   err.code === "ER_DUP_ENTRY" // already registered
                 ) {
                   return next(null, null);
-                } else {
-                  return next(new DatabaseError(err), null);
                 }
+                return next(new DatabaseError(err), null);
               }
               next(null, null);
             }
           )
-        }, function(err) {
-          callback(err);
-        });
+        }, callback);
       }
     ], callback);
   }
@@ -285,14 +278,9 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
               next(err && new DatabaseError(err), null);
             }
           )
-        }, function(err) {
-          callback(err);
-        });
+        }, callback);
       }
-    ],
-    function(err) {
-      callback(err)
-    });
+    ], callback);
   }
 
   getUserMailingLists (

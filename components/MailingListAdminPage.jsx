@@ -1,12 +1,12 @@
 var React = require("react");
 
-var BSCol  = require("react-bootstrap/Col");
-var BSRow  = require("react-bootstrap/Row");
-var BSGrid = require("react-bootstrap/Grid");
+var BSCol   = require("react-bootstrap/Col");
+var BSRow   = require("react-bootstrap/Row");
+var BSGrid  = require("react-bootstrap/Grid");
 var BSPanel = require("react-bootstrap/Panel");
 
 var MKAlertTrigger         = require("mykoop-core/components/AlertTrigger");
-var MKIcon         = require("mykoop-core/components/Icon");
+var MKIcon                 = require("mykoop-core/components/Icon");
 var MKMailingListEditPanel = require("./MailingListEditPanel");
 
 var __ = require("language").__;
@@ -40,11 +40,11 @@ var MailingListAdminPage = React.createClass({
   },
 
   createNewMailingList: function () {
-    var newMl = {
+    var newMailingList = {
       id: -1,
       name: ""
     };
-    this.state.mailingLists.push(newMl);
+    this.state.mailingLists.push(newMailingList);
     this.setState({
       mailingLists: this.state.mailingLists
     });
@@ -94,7 +94,7 @@ var MailingListAdminPage = React.createClass({
         </h1>
         <BSRow>
           {mailingLists}
-          <BSCol md={4} sm={6} key={mailingLists.length}>
+          <BSCol md={4} sm={6} key="newMailingList">
             <BSPanel className="mailingList-new-panel" onClick={this.createNewMailingList}>
               <MKIcon glyph="plus-circle" className="mailingList-new" />
             </BSPanel>

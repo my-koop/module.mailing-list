@@ -1,13 +1,13 @@
 var React = require("react");
 
 var BSPanel = require("react-bootstrap/Panel");
-var BSGrid = require("react-bootstrap/Grid");
-var BSRow  = require("react-bootstrap/Row");
-var BSCol  = require("react-bootstrap/Col");
-var BSInput  = require("react-bootstrap/Input");
+var BSGrid  = require("react-bootstrap/Grid");
+var BSRow   = require("react-bootstrap/Row");
+var BSCol   = require("react-bootstrap/Col");
+var BSInput = require("react-bootstrap/Input");
 
-var MKListModButtons = require("mykoop-core/components/ListModButtons");
-var MKAlert = require("mykoop-core/components/Alert");
+var MKListModButtons    = require("mykoop-core/components/ListModButtons");
+var MKAlert             = require("mykoop-core/components/Alert");
 var MKFeedbacki18nMixin = require("mykoop-core/components/Feedbacki18nMixin");
 
 var __ = require("language").__;
@@ -68,9 +68,13 @@ var MailingListEditPanel = React.createClass({
       this.getField("description") !== this.state.description;
   },
 
+  isNewMailingList: function() {
+    return this.getField("id") === -1;
+  },
+
   saveChanges: function() {
-    var isNew = !~this.getField("id");
     var self = this;
+    var isNew = this.isNewMailingList();
     var action = isNew ?
         actions.mailinglist.add
       : actions.mailinglist.update
@@ -103,7 +107,7 @@ var MailingListEditPanel = React.createClass({
 
   deleteMailingList: function() {
     var self = this;
-    var isNew = !~this.getField("id");
+    var isNew = this.isNewMailingList();
     if(isNew) {
       return self.props.onDelete && self.props.onDelete();
     }
@@ -124,7 +128,7 @@ var MailingListEditPanel = React.createClass({
   },
 
   render: function() {
-    var isNew = !~this.getField("id");
+    var isNew = this.isNewMailingList();
     var buttonsConfig = [
       {
         icon: "save",
@@ -152,7 +156,7 @@ var MailingListEditPanel = React.createClass({
       }
     ];
     if(isNew) {
-      buttonsConfig[1].icon =  "remove";
+      buttonsConfig[1].icon = "remove";
       buttonsConfig[1].warningMessage = __("areYouSure");
     }
 

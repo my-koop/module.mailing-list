@@ -1,11 +1,11 @@
 var React = require("react");
 
-var BSCol  = require("react-bootstrap/Col");
-var BSRow  = require("react-bootstrap/Row");
-var BSGrid = require("react-bootstrap/Grid");
-var BSButton = require("react-bootstrap/Button");
-var BSInput = require("react-bootstrap/Input");
-var BSListGroup = require("react-bootstrap/ListGroup");
+var BSCol           = require("react-bootstrap/Col");
+var BSRow           = require("react-bootstrap/Row");
+var BSGrid          = require("react-bootstrap/Grid");
+var BSButton        = require("react-bootstrap/Button");
+var BSInput         = require("react-bootstrap/Input");
+var BSListGroup     = require("react-bootstrap/ListGroup");
 var BSListGroupItem = require("react-bootstrap/ListGroupItem");
 
 var MKFeedbacki18nMixin = require("mykoop-core/components/Feedbacki18nMixin");
@@ -161,7 +161,9 @@ var MailingListUserInfo = React.createClass({
           }
         }, function(err) {
           if(err) {
-            return MKAlertTrigger.showAlert(__("errors::error", {context: err.context}));
+            return MKAlertTrigger.showAlert(
+              __("errors::error", {context: err.context})
+            );
           }
           successCallback();
         });

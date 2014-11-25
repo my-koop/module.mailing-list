@@ -12,6 +12,7 @@ metaDataBuilder.addData("endpoints", endpoints);
 metaDataBuilder.addData("myAccountPlugins", {
   mailingList: {
     titleKey: "mailinglist::mailingListTab",
+    hash: "mailinglist",
     component: {
       resolve: "component",
       value: "MailingListUserInfo"
@@ -22,6 +23,7 @@ metaDataBuilder.addData("myAccountPlugins", {
 metaDataBuilder.addData("adminEditPlugins", {
   mailingList: {
     titleKey: "mailinglist::mailingListTab",
+    hash: "mailinglist",
     component: {
       resolve: "component",
       value: "MailingListUserInfo"
