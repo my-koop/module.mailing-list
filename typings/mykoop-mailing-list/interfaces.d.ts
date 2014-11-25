@@ -1,13 +1,16 @@
 
 declare module MailingList {
 
+  export interface MailingList {
+    id?: number
+    name: string;
+    description: string;
+    permissions?: any; // no support for now
+    showAtRegistration: boolean;
+  }
+
   module AddMailingList {
-    export interface Params {
-      name: string;
-      description?: string;
-      permissions?: any; // no support for now
-      showAtRegistration: boolean;
-    }
+    export interface Params extends MailingList {}
     export interface Callback {
       (err?, result?: {id: number}) : void;
     }
@@ -25,23 +28,12 @@ declare module MailingList {
   module GetMailingList {
     export interface Params {}
     export interface Callback {
-      (err?, result?: {
-        id: number;
-        name: string;
-        description: string;
-        showAtRegistration: boolean;
-      }[]) : void;
+      (err?, result?: MailingList[]) : void;
     }
   }
 
   module UpdateMailingList {
-    export interface Params {
-      id: number;
-      name: string;
-      description?: string;
-      permissions?: any; // no support for now
-      showAtRegistration: boolean;
-    }
+    export interface Params extends MailingList {}
     export interface Callback {
       (err?) : void;
     }
