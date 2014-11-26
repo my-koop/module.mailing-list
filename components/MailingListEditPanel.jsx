@@ -90,7 +90,7 @@ var MailingListEditPanel = React.createClass({
       }
     }, function(err, res) {
       if(err) {
-        console.log(err);
+        console.error(err);
         return self.setFeedback(err.i18n, "danger");
       }
 
@@ -121,6 +121,7 @@ var MailingListEditPanel = React.createClass({
         }
     }, function(err) {
       if(err) {
+        console.error(err);
         return self.setFeedback(err.i18n, "danger");
       }
       self.props.onDelete && self.props.onDelete();
@@ -184,7 +185,7 @@ var MailingListEditPanel = React.createClass({
             <BSCol md={12}>
               <BSInput
                 type="textarea"
-                className="textarea-resize-vertical"
+                className="resize-vertical"
                 label={__("mailinglist::description")}
                 placeholder={__("mailinglist::descriptionPlaceholder")}
                 valueLink={this.props.descriptionLink}

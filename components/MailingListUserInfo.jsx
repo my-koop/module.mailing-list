@@ -130,9 +130,7 @@ var MailingListUserInfo = React.createClass({
     var successCallback = _.after(updates.length, function() {
       self.setState({
         registeredMailingLists: _(self.state.mailingLists)
-          .filter(function(mailingList) {
-            return mailingList.registered;
-          })
+          .filter("registered")
           .map(function(mailingList) {
             return {
               id: mailingList.id
@@ -152,9 +150,9 @@ var MailingListUserInfo = React.createClass({
       busy: true
     }, function() {
       // Execute all updates
-      _.each(updates, function(upd) {
-        var data = upd.data;
-        upd.action({
+      _.each(updates, function(update) {
+        var data = update.data;
+        update.action({
           data: {
             idMailingLists: data,
             id: self.props.userId
