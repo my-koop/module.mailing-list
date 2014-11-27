@@ -39,10 +39,13 @@ var MailingListAdminPage = React.createClass({
     });
   },
 
+  newMailingListId: -1,
   createNewMailingList: function () {
     var newMailingList = {
-      id: -1,
-      name: ""
+      id: this.newMailingListId--,
+      name: "",
+      description: null,
+      showAtRegistration: 0
     };
     this.state.mailingLists.push(newMailingList);
     this.setState({
@@ -59,17 +62,18 @@ var MailingListAdminPage = React.createClass({
     });
   },
 
-  requestChange: function(mailingList, field, newValue) {
-    mailingList[field] = newValue;
+  requestChange: function(mailingList, field, parseFunc, newValue) {
+    mailingList[field] = parseFunc(newValue);
     this.setState({
       mailingLists: this.state.mailingLists
     });
   },
 
-  makeValueLink: function(mailingList, field) {
+  makeValueLink: function(mailingList, field, parseFunc) {
+    parseFunc = parseFunc || _.identity;
     return {
       value: mailingList[field],
-      requestChange: _.bind(this.requestChange, this, mailingList, field)
+      requestChange: _.bind(this.requestChange, this, mailingList, field, parseFunc)
     }
   },
 
@@ -77,11 +81,18 @@ var MailingListAdminPage = React.createClass({
     var self = this;
     var mailingLists = _.map(this.state.mailingLists, function(mailingList, i) {
       return (
-        <BSCol md={4} sm={6} key={i}>
+        <BSCol md={6} sm={12} key={i}>
           <MKMailingListEditPanel
             idLink={self.makeValueLink(mailingList, "id")}
             nameLink={self.makeValueLink(mailingList, "name")}
             descriptionLink={self.makeValueLink(mailingList, "description")}
+            showAtRegistrationLink={self.makeValueLink(
+              mailingList,
+              "showAtRegistration",
+              function(newValue) {
+                return +newValue;
+              }
+            )}
             onDelete={_.bind(self.mailingListDeleted, self, i)}
           />
         </BSCol>
@@ -94,7 +105,7 @@ var MailingListAdminPage = React.createClass({
         </h1>
         <BSRow>
           {mailingLists}
-          <BSCol md={4} sm={6} key="newMailingList">
+          <BSCol md={6} sm={12} key="newMailingList">
             <BSPanel className="mailingList-new-panel" onClick={this.createNewMailingList}>
               <MKIcon glyph="plus-circle" className="mailingList-new" />
             </BSPanel>

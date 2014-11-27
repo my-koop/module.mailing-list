@@ -14,22 +14,19 @@ var __ = require("language").__;
 var _ = require("lodash");
 var actions = require("actions");
 
+var valueLinkProps = React.PropTypes.shape({
+  value: React.PropTypes.any,
+  requestChange: React.PropTypes.func.isRequired
+}).isRequired;
+
 var MailingListEditPanel = React.createClass({
   mixins: [React.addons.LinkedStateMixin, MKFeedbacki18nMixin],
 
   propTypes: {
-    idLink: React.PropTypes.shape({
-      value: React.PropTypes.number.isRequired,
-      requestChange: React.PropTypes.func.isRequired
-    }).isRequired,
-    nameLink: React.PropTypes.shape({
-      value: React.PropTypes.string.isRequired,
-      requestChange: React.PropTypes.func.isRequired
-    }).isRequired,
-    descriptionLink: React.PropTypes.shape({
-      value: React.PropTypes.string,
-      requestChange: React.PropTypes.func.isRequired
-    }).isRequired,
+    idLink: valueLinkProps,
+    nameLink: valueLinkProps,
+    descriptionLink: valueLinkProps,
+    showAtRegistrationLink: valueLinkProps,
     onDelete: React.PropTypes.func,
     onSave: React.PropTypes.func
   },
@@ -42,8 +39,7 @@ var MailingListEditPanel = React.createClass({
     // update state if a new mailing is taking this spot
     // except this spot was for a new mailing list
     if(
-        nextProps.idLink.value !== this.props.idLink.value &&
-        this.props.idLink.value !== -1
+        nextProps.idLink.value !== this.props.idLink.value
     ) {
       // FIXME:: do not modify this.props directly
       this.props = nextProps;
@@ -55,7 +51,8 @@ var MailingListEditPanel = React.createClass({
     return {
       id: this.getField("id"),
       name: this.getField("name"),
-      description: this.getField("description")
+      description: this.getField("description"),
+      showAtRegistration: this.getField("showAtRegistration")
     };
   },
 
@@ -64,12 +61,13 @@ var MailingListEditPanel = React.createClass({
   },
 
   hasChanges: function() {
-    return (this.getField("name") !== this.state.name) ||
-      this.getField("description") !== this.state.description;
+    var values = this.getValues();
+    var oldValues = _.pick(this.state, _.keys(values));
+    return !_.isEqual(values, oldValues);
   },
 
   isNewMailingList: function() {
-    return this.getField("id") === -1;
+    return this.getField("id") < 0;
   },
 
   saveChanges: function() {
@@ -80,14 +78,10 @@ var MailingListEditPanel = React.createClass({
       : actions.mailinglist.update
     action({
       i18nErrors: {
-        keys: ["app", "validation"],
+        keys: ["app"],
         prefix: "mailinglist::errors"
       },
-      data: {
-        id: !isNew ? this.getField("id") : undefined,
-        name: this.getField("name"),
-        description: this.getField("description")
-      }
+      data: this.getValues()
     }, function(err, res) {
       if(err) {
         console.error(err);
@@ -129,6 +123,7 @@ var MailingListEditPanel = React.createClass({
   },
 
   render: function() {
+    var self = this;
     var isNew = this.isNewMailingList();
     var buttonsConfig = [
       {
@@ -160,6 +155,28 @@ var MailingListEditPanel = React.createClass({
       buttonsConfig[1].icon = "remove";
       buttonsConfig[1].warningMessage = __("areYouSure");
     }
+    var showAtRegistration = !!this.props.showAtRegistrationLink.value;
+    var registrationButton = [{
+      icon:"check",
+      tooltip: {
+        text: __(
+          "mailinglist::showAtRegistrationTooltip",
+          {context: showAtRegistration ? "unset" : "set"}
+        ),
+        overlayProps: {
+          placement: "top"
+        }
+      },
+      props:{
+        className: showAtRegistration ?
+          "active"
+        : undefined
+      },
+      callback: function(e) {
+        self.props.showAtRegistrationLink.requestChange(!showAtRegistration);
+        e.target.blur();
+      }
+    }];
 
     return (
       <BSPanel className="mailingList-edit-min-height">
@@ -171,8 +188,13 @@ var MailingListEditPanel = React.createClass({
                 className="pull-right"
                 buttons={buttonsConfig}
               />
+              <MKListModButtons
+                className="pull-right"
+                style={{marginRight: "10px"}}
+                buttons={registrationButton}
+              />
             </BSCol>
-            <BSCol md={8} className="mailingList-name-form">
+            <BSCol xs={8} className="mailingList-name-form">
               <BSInput
                 type="text"
                 label={__("name")}
