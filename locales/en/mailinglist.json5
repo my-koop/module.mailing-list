@@ -1,2 +1,23 @@
 {
+  adminEditWelcome: "Mailing Lists",
+
+  description: "Description",
+  descriptionPlaceholder: "Enter a description for this mailing list",
+  deleteMailingListWarning: "Warning! Deleting a mailing list removes all users linked to it. $t(areYouSure)",
+  mailingListTab: "Mailing lists",
+
+  errors: {
+    app: {
+      name: {
+        duplicate: "This name is already used"
+      }
+    },
+    validation: {
+      name: {
+        empty: "Name cannot be blank",
+        tooShort: "Name must be at least __variable__ characters long",
+        tooLong: "Name must be at most __variable__ characters long"
+      }
+    }
+  }
 }

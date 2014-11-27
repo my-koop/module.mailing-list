@@ -1,21 +1,39 @@
 // see http://validatejs.org/ for documentation on how to do contraints
-var validate = require("mykoop-utils/common").validation;
+import commons = require("mykoop-utils/common");
+import _ = require("lodash");
+var validate = commons.validation;
 
-var updateDataConstraint = {
-  id: {
-    presence: true,
-    numericality: {
-      onlyInteger: true,
-      greaterThan: 0
-    }
-  },
-  value: {
-    presence: true,
-    length: {
-      minimum: 5
-    }
+var id = {
+  numericality: {
+    onlyInteger: {message: "^notAnInteger"},
+    message: "^notAnInteger"
   }
+};
+// id needs to be cloned because _.assign modifies the source
+var requiredId = _.assign(_.clone(id), {presence: {message: "^empty"}});
+
+export function mailingListDefinition(obj) {
+  var constraint = {
+    id: id,
+    name: {
+      presence: {message: "^empty"},
+      length: {
+        minimum: 4,
+        maximum: 45,
+        tooShort: "^tooShort__%{count}__",
+        tooLong: "^tooLong__%{count}__"
+      }
+    },
+    description: {},
+    permissions: {}
+  };
+  return validate(obj, constraint);
 }
-export function get1(obj) {
-  return validate(obj, updateDataConstraint);
+
+export function mailinglistId(obj) {
+  var constraint = {
+    id: requiredId
+  }
+  return validate(obj, constraint);
 }
+

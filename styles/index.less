@@ -1,3 +1,29 @@
 // Use for any styles that need to be included in the global site-wide
 // stylesheet. You can use, define or redefine variables and mixins used
 // elsewhere in the project.
+
+.mailingList-actions-buttons {
+  z-index: 100;
+}
+
+.mailingList-name-form {
+  z-index: 99;
+}
+
+@mailingList-panel-height: 200px;
+
+.mailingList-new-panel {
+  min-height: @mailingList-panel-height;
+  max-height: @mailingList-panel-height;
+  text-align: center;
+  color: @gray-lighter;
+  :hover {
+    color: @gray-dark;
+    cursor: pointer;
+  }
+}
+
+.mailingList-new {
+  line-height: @mailingList-panel-height - @panel-body-padding*2;
+  font-size: 6em;
+}

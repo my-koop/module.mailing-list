@@ -25,6 +25,9 @@
     },
     "mykoop-user/mykoop-user.d.ts": {
       "commit": "9c42eac834072f1bb3ed3c7e8551f8ec0770a937"
+    },
+    "lodash/lodash.d.ts": {
+      "commit": "9c42eac834072f1bb3ed3c7e8551f8ec0770a937"
     }
   },
   "dependencies": {
