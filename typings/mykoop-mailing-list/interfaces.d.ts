@@ -26,7 +26,9 @@ declare module MailingList {
   }
 
   module GetMailingList {
-    export interface Params {}
+    export interface Params {
+      inRegistration?: boolean;
+    }
     export interface Callback {
       (err?, result?: MailingList[]) : void;
     }

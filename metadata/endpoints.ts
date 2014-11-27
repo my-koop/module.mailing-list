@@ -4,6 +4,10 @@ var endpoints = {
       path: "/mailinglists",
       method: "get",
     },
+    registration: {
+      path: "/mailinglists/registration",
+      method: "get",
+    },
     add: {
       path: "/mailinglists",
       method: "post",

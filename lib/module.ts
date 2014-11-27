@@ -117,9 +117,13 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
   ) {
     async.waterfall([
       function(callback) {
+        var whereClause = "";
+        if(params.inRegistration) {
+          whereClause = "WHERE showAtRegistration = 1"
+        }
         connection.query(
           "SELECT idMailingList AS id, name, description, showAtRegistration \
-          FROM mailinglist",
+          FROM mailinglist " + whereClause,
           [],
           function(err, rows) {
             if(err) {
