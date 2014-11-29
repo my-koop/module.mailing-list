@@ -5,6 +5,7 @@
   descriptionPlaceholder: "Enter a description for this mailing list",
   deleteMailingListWarning: "Warning! Deleting a mailing list removes all users linked to it. $t(areYouSure)",
   mailingListTab: "Mailing lists",
+  mailingLists: "Mailing lists",
 
   showAtRegistrationTooltip: "Show this mailing in the registration form for new users",
 
