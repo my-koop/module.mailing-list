@@ -8,11 +8,13 @@ var BSPanel = require("react-bootstrap/Panel");
 var MKAlertTrigger         = require("mykoop-core/components/AlertTrigger");
 var MKIcon                 = require("mykoop-core/components/Icon");
 var MKMailingListEditPanel = require("./MailingListEditPanel");
+var MKMailingListConfig    = require("./MailingListConfig")
 
 var __ = require("language").__;
 var _ = require("lodash");
 var actions = require("actions");
 
+var showPerRow = 2;
 var MailingListAdminPage = React.createClass({
   getInitialState: function() {
     return {
@@ -81,7 +83,7 @@ var MailingListAdminPage = React.createClass({
     var self = this;
     var mailingLists = _.map(this.state.mailingLists, function(mailingList, i) {
       return (
-        <BSCol md={6} sm={12} key={i}>
+        <BSCol md={12/showPerRow} sm={12} key={i}>
           <MKMailingListEditPanel
             idLink={self.makeValueLink(mailingList, "id")}
             nameLink={self.makeValueLink(mailingList, "name")}
@@ -98,19 +100,46 @@ var MailingListAdminPage = React.createClass({
         </BSCol>
       );
     });
+
+    mailingLists.push(
+      <BSCol md={12/showPerRow} sm={12} key="newMailingList">
+        <BSPanel className="mailingList-new-panel" onClick={this.createNewMailingList}>
+          <MKIcon glyph="plus-circle" className="mailingList-new" />
+        </BSPanel>
+      </BSCol>
+    );
+
+    if(showPerRow <= 1) {
+      mailingLists = (
+        <BSRow>
+          {mailingLists}
+        </BSRow>
+      );
+    } else {
+      var panels = mailingLists;
+      var curSlice = 0;
+      mailingLists = [];
+      while(!_.isEmpty(panels)) {
+        var rowContent = _.first(panels, showPerRow);
+        panels = _.rest(panels, showPerRow);
+        mailingLists.push(
+          <BSRow key={curSlice}>
+            {rowContent}
+          </BSRow>
+        );
+        curSlice++;
+      }
+    }
+
     return (
       <BSCol>
         <h1>
           {__("mailinglist::adminEditWelcome")}
         </h1>
-        <BSRow>
-          {mailingLists}
-          <BSCol md={6} sm={12} key="newMailingList">
-            <BSPanel className="mailingList-new-panel" onClick={this.createNewMailingList}>
-              <MKIcon glyph="plus-circle" className="mailingList-new" />
-            </BSPanel>
-          </BSCol>
+        <BSRow key="config">
+          <MKMailingListConfig />
         </BSRow>
+        {mailingLists}
       </BSCol>
     );
   }

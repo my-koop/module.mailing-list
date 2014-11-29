@@ -10,6 +10,8 @@ export function attachControllers(
   binder: utils.ModuleControllersBinder<mkmailinglist.Module>
 ) {
   var mailingList = binder.moduleInstance;
+
+  // Add new Mailing list
   binder.attach(
     {
       endPoint: endpoints.mailinglist.add,
@@ -25,6 +27,7 @@ export function attachControllers(
     })
   );
 
+  // Update Mailing list
   binder.attach(
     {
       endPoint: endpoints.mailinglist.update,
@@ -41,6 +44,7 @@ export function attachControllers(
     })
   );
 
+  // Delete Mailing list
   binder.attach(
     {
       endPoint: endpoints.mailinglist.delete,
@@ -54,11 +58,13 @@ export function attachControllers(
     })
   );
 
+  // Get all mailing lists
   binder.attach(
     {endPoint: endpoints.mailinglist.list},
     binder.makeSimpleController(mailingList.getMailingLists)
   );
 
+  // Get mailing for registration only
   binder.attach(
     {endPoint: endpoints.mailinglist.registration},
     binder.makeSimpleController<MailingList.GetMailingList.Params>(
@@ -71,6 +77,7 @@ export function attachControllers(
     )
   );
 
+  // Register a user to multiple mailing lists
   binder.attach(
     {
       endPoint: endpoints.user.mailinglist.register
@@ -86,6 +93,7 @@ export function attachControllers(
     })
   );
 
+  // Unregister a user to multiple mailing lists
   binder.attach(
     {
       endPoint: endpoints.user.mailinglist.unregister
@@ -101,6 +109,7 @@ export function attachControllers(
     })
   );
 
+  // Get mailing list the user is registered to
   binder.attach(
     {
       endPoint: endpoints.user.mailinglist.list,
@@ -112,5 +121,46 @@ export function attachControllers(
       };
       return params;
     })
+  );
+
+  // Set mailing list configuration
+  binder.attach(
+    {
+      endPoint: endpoints.mailinglist.config.set
+    },
+    binder.makeSimpleController<MailingList.SetConfigurations.Params>(
+      mailingList.setConfigurations,
+      function(req) {
+        return {
+          globalSender: req.param("globalSender", "")
+        }
+      }
+    )
+  );
+
+  // Get mailing list configuration
+  binder.attach(
+    {
+      endPoint: endpoints.mailinglist.config.get
+    },
+    binder.makeSimpleController<MailingList.GetConfigurations.Params>(
+      mailingList.getConfigurations
+    )
+  );
+
+  // Send email to the mailing list
+  binder.attach(
+    {
+      endPoint: endpoints.mailinglist.send
+    },
+    binder.makeSimpleController<MailingList.SendEmail.Params>(
+      mailingList.sendEmail,
+      function(req) {
+        return {
+          id: parseInt(req.param("id")) || 0,
+          content: req.param("content","")
+        }
+      }
+    )
   );
 }
