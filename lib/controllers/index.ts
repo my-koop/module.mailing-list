@@ -158,7 +158,8 @@ export function attachControllers(
       function(req) {
         return {
           id: parseInt(req.param("id", 0)),
-          content: req.param("content","")
+          content: req.param("content",""),
+          subject: req.param("subject","No Subject")
         }
       }
     )

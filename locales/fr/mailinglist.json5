@@ -1,5 +1,6 @@
 {
   adminEditWelcome: "Listes de diffusion",
+  sendEmailWelcome: "Envoi de courriel",
 
   description: "Description",
   descriptionPlaceholder: "Entrer une description pour cette liste de diffusion",
@@ -15,6 +16,7 @@
 
   config: "Configurations",
   globalEmail: "Courriel principal",
+  subject: "Sujet",
 
   errors: {
     app: {

@@ -92,9 +92,10 @@ declare module MailingList {
     export interface Params {
       id: number; //mailing list id
       content: string;
+      subject: string;
     }
     export interface Callback {
-      (err: Error): void;
+      (err?: Error): void;
     }
   }
 }

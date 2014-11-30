@@ -9,9 +9,12 @@ var DatabaseError = utils.errors.DatabaseError;
 class Module extends utils.BaseModule implements mkmailinglist.Module {
   db: mkdatabase.Module;
   user: mkuser.Module;
+  communications: mkcommunications.Module;
+
   init() {
     this.db = <mkdatabase.Module>this.getModuleManager().get("database");
     this.user = <mkuser.Module>this.getModuleManager().get("user");
+    this.communications = <mkcommunications.Module>this.getModuleManager().get("communications");
     controllerList.attachControllers(new utils.ModuleControllersBinder(this));
   }
 
@@ -419,7 +422,41 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
     params: MailingList.SendEmail.Params,
     callback: MailingList.SendEmail.Callback
   ) {
-    // TODO::
+    var self = this;
+    var toEmails = [];
+    async.waterfall([
+      function(next) {
+        connection.query(
+          "SELECT email \
+            FROM mailinglist_users \
+            INNER JOIN user ON idUser=id\
+            WHERE idMailingList=?",
+          [params.id],
+          function(err, res) {
+            if(err) {
+              return next(new DatabaseError(err));
+            }
+            if(res.length === 0) {
+              return next(new ApplicationError(null, {id: "empty"}));
+            }
+            toEmails = _.pluck(res, "email")
+            next(null);
+          }
+        );
+      },
+      function(next) {
+        self.__getConfigurations(connection, {}, <any>next);
+      },
+      function(configs: MailingList.GetConfigurations.CallbackResult, next) {
+        var fromEmail = configs && configs.globalSender || undefined;
+        self.communications.sendEmail({
+          from: fromEmail,
+          message: params.content,
+          subject: params.subject,
+          to: toEmails
+        }, next);
+      }
+    ], callback);
   }
 
 }
