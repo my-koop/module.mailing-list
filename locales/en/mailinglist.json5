@@ -13,6 +13,9 @@
   config: "Configurations",
   globalEmail: "Primary email",
 
+  config: "Configurations",
+  globalEmail: "Primary email",
+
   errors: {
     app: {
       name: {
