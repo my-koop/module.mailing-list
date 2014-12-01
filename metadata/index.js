@@ -26,13 +26,15 @@ metaDataBuilder.addData("adminEditPlugins", {
         }
     }
 });
-metaDataBuilder.addData("userContributions", {
-    registerForm: {
-        mailingList: {
-            titleKey: "mailinglist::mailingLists",
-            component: {
-                resolve: "component",
-                value: "RegisterMailingList"
+metaDataBuilder.addData("user", {
+    contributions: {
+        registerForm: {
+            mailingList: {
+                titleKey: "mailinglist::mailingLists",
+                component: {
+                    resolve: "component",
+                    value: "RegisterMailingList"
+                }
             }
         }
     }
