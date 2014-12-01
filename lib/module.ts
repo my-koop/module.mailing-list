@@ -33,9 +33,10 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
   ) {
     async.waterfall([
       function(callback) {
-        var mailingList = {
+        var mailingList: MailingList.MailingList = {
           name: params.name,
-          description: params.description
+          description: params.description,
+          showAtRegistration: params.showAtRegistration
         };
         connection.query(
           "INSERT INTO mailinglist SET ?",
@@ -116,20 +117,28 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
   ) {
     async.waterfall([
       function(callback) {
+        var whereClause = "";
+        if(params.inRegistration) {
+          whereClause = "WHERE showAtRegistration = 1"
+        }
         connection.query(
-          "SELECT idMailingList AS id, name, description FROM mailinglist",
+          "SELECT idMailingList AS id, name, description, showAtRegistration \
+          FROM mailinglist " + whereClause,
           [],
           function(err, rows) {
             if(err) {
               return callback(new DatabaseError(err));
             }
-            var mailingLists = _.map(rows, function(row: any) {
-              return {
-                id: row.id,
-                name: row.name,
-                description: row.description
+            var mailingLists: MailingList.MailingList[] = _.map(rows,
+              function(row: any) {
+                return {
+                  id: row.id,
+                  name: row.name,
+                  description: row.description,
+                  showAtRegistration: row.showAtRegistration
+                }
               }
-            });
+            );
             callback(null, mailingLists);
           }
         )
@@ -157,9 +166,10 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
   ) {
     async.waterfall([
       function(callback) {
-        var mailingList = {
+        var mailingList: MailingList.MailingList = {
           name: params.name,
-          description: params.description
+          description: params.description,
+          showAtRegistration: params.showAtRegistration
         };
         connection.query(
           "UPDATE mailinglist SET ? WHERE idMailingList = ?",

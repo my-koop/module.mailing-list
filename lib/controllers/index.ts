@@ -55,10 +55,20 @@ export function attachControllers(
   );
 
   binder.attach(
-    {
-      endPoint: endpoints.mailinglist.list
-    },
+    {endPoint: endpoints.mailinglist.list},
     binder.makeSimpleController(mailingList.getMailingLists)
+  );
+
+  binder.attach(
+    {endPoint: endpoints.mailinglist.registration},
+    binder.makeSimpleController<MailingList.GetMailingList.Params>(
+      mailingList.getMailingLists,
+      function() {
+        return {
+          inRegistration: true
+        };
+      }
+    )
   );
 
   binder.attach(

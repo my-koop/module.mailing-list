@@ -6,14 +6,12 @@
   deleteMailingListWarning: "Attention! La suppression d'une liste de diffusion retire tous les utilisateurs associés. $t(areYouSure)",
   mailingListTab: "Listes de diffusion",
 
+  showAtRegistrationTooltip: "Afficher cette liste de diffusion dans le formulaire d'inscription des nouveaux utilisateurs",
+
   errors: {
     app: {
       name: {
-        duplicate: "Ce nom est déjà utilisé"
-      }
-    },
-    validation: {
-      name: {
+        duplicate: "Ce nom est déjà utilisé",
         empty: "Le nom ne peut être vide",
         tooShort: "Le nom doit contenir un minimum de __variable__ caractères",
         tooLong: "Le nom doit contenir un maximum de __variable__ caractères"
