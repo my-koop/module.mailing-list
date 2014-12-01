@@ -58,7 +58,7 @@ var RegisterMailingList = React.createClass({
         id: userId
       }
     }, function(err) {
-      callback(err && "Error registering user to mailing lists");
+      callback(err && __("mailinglist::registerError"));
     })
   },
 
@@ -88,13 +88,13 @@ var RegisterMailingList = React.createClass({
           }
         }
         var onKeyDown = undefined;
-        if(i === 0) {
-          if(i === length - 1) {
-            onKeyDown = self.props.checkGoingUpDownKey;
-          } else {
-            onKeyDown = self.props.checkGoingUpKey;
-          }
-        } else if(i === length - 1) {
+        var isFirst = i === 0;
+        var isLast = i === length - 1;
+        if(isFirst) {
+          onKeyDown = (isLast) ?
+            self.props.checkGoingUpDownKey
+          : self.props.checkGoingUpKey;
+        } else if(isLast) {
           onKeyDown = self.props.checkGoingDownKey;
         }
         var label = <strong>{mailingList.name}</strong>;
