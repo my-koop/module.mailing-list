@@ -7,7 +7,7 @@ var BSInput   = require("react-bootstrap/Input");
 var BSButton  = require("react-bootstrap/Button");
 
 var MKFeedbackMixin = require("mykoop-core/components/Feedbacki18nMixin");
-var MKRichTextBox = require("mykoop-core/components/RichTextBox");
+var MKRichTextArea = require("mykoop-core/components/RichTextArea");
 var MKConfirmationTrigger = require("mykoop-core/components/ConfirmationTrigger");
 
 var _ = require("lodash");
@@ -128,7 +128,7 @@ var SendEmailPage = React.createClass({
                 label={__("mailinglist::subject")}
                 valueLink={subjectLink}
               />
-              <MKRichTextBox className="col-xs-12" ref="editor"/>
+              <MKRichTextArea className="col-xs-12" ref="editor"/>
             </BSCol>
           </BSRow>
         </BSPanel>
