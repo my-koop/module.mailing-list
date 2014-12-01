@@ -157,7 +157,7 @@ export function attachControllers(
       mailingList.sendEmail,
       function(req) {
         return {
-          id: parseInt(req.param("id")) || 0,
+          id: parseInt(req.param("id", 0)),
           content: req.param("content","")
         }
       }

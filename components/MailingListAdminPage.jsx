@@ -14,7 +14,8 @@ var __ = require("language").__;
 var _ = require("lodash");
 var actions = require("actions");
 
-var showPerRow = 2;
+var itemsPerRow = 2;
+var panelMdSize = Math.floor(12/itemsPerRow);
 var MailingListAdminPage = React.createClass({
   getInitialState: function() {
     return {
@@ -83,7 +84,7 @@ var MailingListAdminPage = React.createClass({
     var self = this;
     var mailingLists = _.map(this.state.mailingLists, function(mailingList, i) {
       return (
-        <BSCol md={12/showPerRow} sm={12} key={i}>
+        <BSCol md={panelMdSize} sm={12} key={i}>
           <MKMailingListEditPanel
             idLink={self.makeValueLink(mailingList, "id")}
             nameLink={self.makeValueLink(mailingList, "name")}
@@ -102,14 +103,14 @@ var MailingListAdminPage = React.createClass({
     });
 
     mailingLists.push(
-      <BSCol md={12/showPerRow} sm={12} key="newMailingList">
+      <BSCol md={panelMdSize} sm={12} key="newMailingList">
         <BSPanel className="mailingList-new-panel" onClick={this.createNewMailingList}>
           <MKIcon glyph="plus-circle" className="mailingList-new" />
         </BSPanel>
       </BSCol>
     );
 
-    if(showPerRow <= 1) {
+    if(itemsPerRow <= 1) {
       mailingLists = (
         <BSRow>
           {mailingLists}
@@ -120,8 +121,8 @@ var MailingListAdminPage = React.createClass({
       var curSlice = 0;
       mailingLists = [];
       while(!_.isEmpty(panels)) {
-        var rowContent = _.first(panels, showPerRow);
-        panels = _.rest(panels, showPerRow);
+        var rowContent = _.first(panels, itemsPerRow);
+        panels = _.rest(panels, itemsPerRow);
         mailingLists.push(
           <BSRow key={curSlice}>
             {rowContent}

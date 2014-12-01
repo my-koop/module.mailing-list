@@ -1,4 +1,4 @@
-var React = require('react');
+var React = require("react");
 
 var BSCol    = require("react-bootstrap/Col");
 var BSInput  = require("react-bootstrap/Input");
