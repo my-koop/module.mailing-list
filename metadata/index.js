@@ -26,5 +26,16 @@ metaDataBuilder.addData("adminEditPlugins", {
         }
     }
 });
+metaDataBuilder.addData("userContributions", {
+    registerForm: {
+        mailingList: {
+            titleKey: "mailinglist::mailingLists",
+            component: {
+                resolve: "component",
+                value: "RegisterMailingList"
+            }
+        }
+    }
+});
 var metaData = metaDataBuilder.get();
 module.exports = metaData;
