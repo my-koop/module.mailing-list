@@ -79,6 +79,35 @@ declare module mkmailinglist {
       callback: MailingList.UnregisterToMailingLists.Callback
     );
 
+    getConfigurations(
+      params: MailingList.GetConfigurations.Params,
+      callback: MailingList.GetConfigurations.Callback
+    );
+    __getConfigurations(
+      connection: mysql.IConnection,
+      params: MailingList.GetConfigurations.Params,
+      callback: MailingList.GetConfigurations.Callback
+    );
+
+    setConfigurations(
+      params: MailingList.SetConfigurations.Params,
+      callback: MailingList.SetConfigurations.Callback
+    );
+    __setConfigurations(
+      connection: mysql.IConnection,
+      params: MailingList.SetConfigurations.Params,
+      callback: MailingList.SetConfigurations.Callback
+    );
+
+    sendEmail(
+      params: MailingList.SendEmail.Params,
+      callback: MailingList.SendEmail.Callback
+    );
+    __sendEmail(
+      connection: mysql.IConnection,
+      params: MailingList.SendEmail.Params,
+      callback: MailingList.SendEmail.Callback
+    );
   }
 
 }

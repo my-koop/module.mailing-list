@@ -31,6 +31,20 @@ var endpoints = {
         resolve: "validation",
         value: "mailinglistId"
       }
+    },
+    send: {
+      path: "/mailinglists/:id/send",
+      method: "post"
+    },
+    config: {
+      get: {
+        path: "/mailinglists/config/all",
+        method: "get"
+      },
+      set: {
+        path: "/mailinglists/config/all",
+        method: "put"
+      }
     }
   },
   user: {

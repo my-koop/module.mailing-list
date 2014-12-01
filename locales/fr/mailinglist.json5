@@ -10,6 +10,9 @@
   showAtRegistrationTooltip: "Afficher cette liste de diffusion dans le formulaire d'inscription des nouveaux utilisateurs",
   registerError: "Erreur survenue pendant l'inscription aux listes de diffusion",
 
+  config: "Configurations",
+  globalEmail: "Courriel principal",
+
   errors: {
     app: {
       name: {
