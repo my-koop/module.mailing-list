@@ -73,7 +73,7 @@ var MailingListAdminPage = React.createClass({
     parseFunc = parseFunc || _.identity;
     return {
       value: mailingList[field],
-      requestChange: _.bind(this.requestChange, this, mailingList, field, parseFunc)
+      requestChange: _.bind(this.requestChange, null, mailingList, field, parseFunc)
     }
   },
 

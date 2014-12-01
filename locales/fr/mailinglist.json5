@@ -7,8 +7,6 @@
   mailingListTab: "Listes de diffusion",
 
   showAtRegistrationTooltip: "Afficher cette liste de diffusion dans le formulaire d'inscription des nouveaux utilisateurs",
-  showAtRegistrationTooltip_set: "$t(mailinglist::showAtRegistrationTooltip)",
-  showAtRegistrationTooltip_unset: "Ne pas $t(mailinglist::showAtRegistrationTooltip)",
 
   errors: {
     app: {

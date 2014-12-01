@@ -63,7 +63,7 @@ export function attachControllers(
     {endPoint: endpoints.mailinglist.registration},
     binder.makeSimpleController<MailingList.GetMailingList.Params>(
       mailingList.getMailingLists,
-      function(req) {
+      function() {
         return {
           inRegistration: true
         };

@@ -7,8 +7,6 @@
   mailingListTab: "Mailing lists",
 
   showAtRegistrationTooltip: "Show this mailing in the registration form for new users",
-  showAtRegistrationTooltip_set: "$t(mailinglist::showAtRegistrationTooltip)",
-  showAtRegistrationTooltip_unset: "Do not $t(mailinglist::showAtRegistrationTooltip)",
 
   errors: {
     app: {

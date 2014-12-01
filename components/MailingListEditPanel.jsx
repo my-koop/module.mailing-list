@@ -159,10 +159,7 @@ var MailingListEditPanel = React.createClass({
     var registrationButton = [{
       icon:"check",
       tooltip: {
-        text: __(
-          "mailinglist::showAtRegistrationTooltip",
-          {context: showAtRegistration ? "unset" : "set"}
-        ),
+        text: __("mailinglist::showAtRegistrationTooltip"),
         overlayProps: {
           placement: "top"
         }
@@ -189,8 +186,7 @@ var MailingListEditPanel = React.createClass({
                 buttons={buttonsConfig}
               />
               <MKListModButtons
-                className="pull-right"
-                style={{marginRight: "10px"}}
+                className="pull-right mailing-list-registration-action"
                 buttons={registrationButton}
               />
             </BSCol>
