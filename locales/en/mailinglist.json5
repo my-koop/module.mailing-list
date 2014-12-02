@@ -1,5 +1,6 @@
 {
   adminEditWelcome: "Mailing Lists",
+  sendEmailWelcome: "Sending email",
 
   description: "Description",
   descriptionPlaceholder: "Enter a description for this mailing list",
@@ -12,6 +13,10 @@
 
   config: "Configurations",
   globalEmail: "Primary email",
+
+  config: "Configurations",
+  globalEmail: "Primary email",
+  subject: "Subject",
 
   errors: {
     app: {
