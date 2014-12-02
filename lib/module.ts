@@ -330,87 +330,6 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
     )
   }
 
-  getConfigurations(
-    params: MailingList.GetConfigurations.Params,
-    callback: MailingList.GetConfigurations.Callback
-  ) {
-    this.callWithConnection(this.__getConfigurations, params, callback);
-  }
-  __getConfigurations(
-    connection: mysql.IConnection,
-    params: MailingList.GetConfigurations.Params,
-    callback: MailingList.GetConfigurations.Callback
-  ) {
-    connection.query(
-      "SELECT value FROM configuration WHERE `key` = ?",
-      ["mailingList"],
-      function(err, res) {
-        callback(
-          err && new DatabaseError(err),
-          (res && res.length === 1 && JSON.parse(res[0].value)) ||
-          null
-        );
-      }
-    );
-  }
-
-  setConfigurations(
-    params: MailingList.SetConfigurations.Params,
-    callback: MailingList.SetConfigurations.Callback
-  ) {
-    this.callWithConnection(this.__setConfigurations, params, callback);
-  }
-  __setConfigurations(
-    connection: mysql.IConnection,
-    params: MailingList.SetConfigurations.Params,
-    callback: MailingList.SetConfigurations.Callback
-  ) {
-    var self = this;
-    logger.debug("Set configurations");
-    async.waterfall([
-      function(next) {
-        self.__getConfigurations(connection, {}, next);
-      },
-      function(configs, next) {
-        logger.debug("Get current configurations", configs);
-        var newConfigs: MailingList.MailingListConfiguration = {
-          globalSender: params.globalSender
-        };
-        var newConfigsString = JSON.stringify(newConfigs);
-        // First time setting the config
-        if(!configs) {
-          logger.debug("No configs, attempt to insert", newConfigsString);
-          return connection.query(
-            "INSERT INTO configuration SET `key` = ?, value = ?",
-            ["mailingList", newConfigsString],
-            function(err) {
-              if(err) {
-                logger.debug(err);
-              }
-              // Ignore this error, the databse might be corrupted
-              // try to update the config if there's an error
-              next(null, newConfigsString, !!err);
-            }
-          );
-        }
-        next(null, newConfigsString, true);
-      }, function(newConfigsString, tryUpdate, next) {
-        if(tryUpdate) {
-          logger.debug("Update configurations", newConfigsString);
-          return connection.query(
-            "UPDATE configuration SET value = ? WHERE `key` = ?",
-            [newConfigsString, "mailingList"],
-            function(err) {
-              next(err && new DatabaseError(err));
-            }
-          );
-        }
-        // we inserted a new value and it didn't return an error
-        next();
-      }
-    ], callback);
-  }
-
   sendEmail(
     params: MailingList.SendEmail.Params,
     callback: MailingList.SendEmail.Callback
@@ -445,12 +364,7 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
         );
       },
       function(next) {
-        self.__getConfigurations(connection, {}, <any>next);
-      },
-      function(configs: MailingList.GetConfigurations.CallbackResult, next) {
-        var fromEmail = configs && configs.globalSender || undefined;
         self.communications.sendEmail({
-          from: fromEmail,
           message: params.content,
           subject: params.subject,
           to: toEmails

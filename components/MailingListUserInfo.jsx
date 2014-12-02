@@ -50,7 +50,7 @@ var MailingListUserInfo = React.createClass({
       actions.user.mailinglist.list({
         i18nErrors: {},
         data: {
-          id: this.props.userId
+          id: userId
         }
       }, function(err, res) {
         if(err) {

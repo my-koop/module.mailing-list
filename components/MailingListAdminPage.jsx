@@ -8,7 +8,6 @@ var BSPanel = require("react-bootstrap/Panel");
 var MKAlertTrigger         = require("mykoop-core/components/AlertTrigger");
 var MKIcon                 = require("mykoop-core/components/Icon");
 var MKMailingListEditPanel = require("./MailingListEditPanel");
-var MKMailingListConfig    = require("./MailingListConfig")
 
 var __ = require("language").__;
 var _ = require("lodash");
@@ -137,9 +136,6 @@ var MailingListAdminPage = React.createClass({
         <h1>
           {__("mailinglist::adminEditWelcome")}
         </h1>
-        <BSRow key="config">
-          <MKMailingListConfig />
-        </BSRow>
         {mailingLists}
       </BSCol>
     );
