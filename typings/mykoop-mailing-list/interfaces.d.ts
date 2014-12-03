@@ -70,24 +70,6 @@ declare module MailingList {
     }
   }
 
-  export interface MailingListConfiguration {
-    globalSender: string;
-  }
-  module GetConfigurations {
-    export interface Params {}
-    export interface CallbackResult extends MailingListConfiguration {}
-    export interface Callback {
-      (err: Error, result?: CallbackResult): void;
-    }
-  }
-
-  module SetConfigurations {
-    export interface Params extends MailingListConfiguration {}
-    export interface Callback {
-      (err: Error): void;
-    }
-  }
-
   module SendEmail {
     export interface Params {
       id: number; //mailing list id

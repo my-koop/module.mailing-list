@@ -123,31 +123,6 @@ export function attachControllers(
     })
   );
 
-  // Set mailing list configuration
-  binder.attach(
-    {
-      endPoint: endpoints.mailinglist.config.set
-    },
-    binder.makeSimpleController<MailingList.SetConfigurations.Params>(
-      mailingList.setConfigurations,
-      function(req) {
-        return {
-          globalSender: req.param("globalSender", "")
-        }
-      }
-    )
-  );
-
-  // Get mailing list configuration
-  binder.attach(
-    {
-      endPoint: endpoints.mailinglist.config.get
-    },
-    binder.makeSimpleController<MailingList.GetConfigurations.Params>(
-      mailingList.getConfigurations
-    )
-  );
-
   // Send email to the mailing list
   binder.attach(
     {
