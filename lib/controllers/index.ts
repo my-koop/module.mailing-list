@@ -4,8 +4,12 @@ import utils = require("mykoop-utils");
 
 import validation = require("../validation/index");
 import _ = require("lodash");
-// Controllers.
 
+// Helper controllers.
+//FIXME: Get this through the module manager...
+//var validateCurrentUser = require("mykoop-user/lib/controllers/validateCurrentUser");
+
+// Controllers.
 export function attachControllers(
   binder: utils.ModuleControllersBinder<mkmailinglist.Module>
 ) {
@@ -81,6 +85,18 @@ export function attachControllers(
   binder.attach(
     {
       endPoint: endpoints.user.mailinglist.register
+      /*
+      permissions: {
+        user: {
+          profile: {
+            mailinglists: {
+              edit: true
+            }
+          }
+        }
+      },
+      customPermissionDenied: validateCurrentUser
+      */
     },
     binder.makeSimpleController(mailingList.registerToMailingLists, function (req: Express.Request) {
       var params: MailingList.RegisterToMailingLists.Params = {
@@ -97,6 +113,18 @@ export function attachControllers(
   binder.attach(
     {
       endPoint: endpoints.user.mailinglist.unregister
+      /*
+      permissions: {
+        user: {
+          profile: {
+            mailinglists: {
+              edit: true
+            }
+          }
+        }
+      },
+      customPermissionDenied: validateCurrentUser
+      */
     },
     binder.makeSimpleController(mailingList.unregisterToMailingLists, function (req: Express.Request) {
       var params: MailingList.RegisterToMailingLists.Params = {
@@ -114,6 +142,18 @@ export function attachControllers(
     {
       endPoint: endpoints.user.mailinglist.list,
       validation: validation.mailinglistId
+      /*
+      permissions: {
+        user: {
+          profile: {
+            mailinglists: {
+              view: true
+            }
+          }
+        }
+      },
+      customPermissionDenied: validateCurrentUser
+      */
     },
     binder.makeSimpleController(mailingList.getUserMailingLists, function (req: Express.Request) {
       var params: MailingList.GetUserMailingLists.Params = {

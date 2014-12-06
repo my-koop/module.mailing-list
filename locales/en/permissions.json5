@@ -1,0 +1,11 @@
+{
+  user: {
+    profile: {
+      mailinglists: {
+        __description: "$t(mailinglist::adminEditWelcome)",
+        view: "List the mailing lists of any user",
+        edit: "Edit the mailing lists of any user"
+      }
+    }
+  }
+}

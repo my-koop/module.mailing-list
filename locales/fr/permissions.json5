@@ -1,0 +1,11 @@
+{
+  user: {
+    profile: {
+      mailinglists: {
+        __description: "$t(mailinglist::adminEditWelcome)",
+        view: "Lister les listes de diffusion de tout utilisateur",
+        edit: "Modifier les listes de diffusion de tout utilisateur"
+      }
+    }
+  }
+}
