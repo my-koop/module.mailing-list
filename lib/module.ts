@@ -367,7 +367,7 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
         self.communications.sendEmail({
           message: params.content,
           subject: params.subject,
-          to: toEmails
+          bcc: toEmails
         }, next);
       }
     ], callback);
