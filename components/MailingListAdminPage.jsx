@@ -5,6 +5,7 @@ var BSRow   = require("react-bootstrap/Row");
 var BSGrid  = require("react-bootstrap/Grid");
 var BSPanel = require("react-bootstrap/Panel");
 
+var MKPermissionMixin      = require("mykoop-user/components/PermissionMixin");
 var MKAlertTrigger         = require("mykoop-core/components/AlertTrigger");
 var MKIcon                 = require("mykoop-core/components/Icon");
 var MKMailingListEditPanel = require("./MailingListEditPanel");
@@ -16,6 +17,8 @@ var actions = require("actions");
 var itemsPerRow = 2;
 var panelMdSize = Math.floor(12/itemsPerRow);
 var MailingListAdminPage = React.createClass({
+  mixins: [MKPermissionMixin],
+
   getInitialState: function() {
     return {
       mailingLists: []
@@ -81,6 +84,13 @@ var MailingListAdminPage = React.createClass({
 
   render: function() {
     var self = this;
+
+    var canCreateList = this.constructor.validateUserPermissions({
+      mailinglists: {
+        create: true
+      }
+    });
+
     var mailingLists = _.map(this.state.mailingLists, function(mailingList, i) {
       return (
         <BSCol md={panelMdSize} sm={12} key={i}>
@@ -101,13 +111,15 @@ var MailingListAdminPage = React.createClass({
       );
     });
 
-    mailingLists.push(
-      <BSCol md={panelMdSize} sm={12} key="newMailingList">
-        <BSPanel className="mailingList-new-panel" onClick={this.createNewMailingList}>
-          <MKIcon glyph="plus-circle" className="mailingList-new" />
-        </BSPanel>
-      </BSCol>
-    );
+    if (canCreateList) {
+      mailingLists.push(
+        <BSCol md={panelMdSize} sm={12} key="newMailingList">
+          <BSPanel className="mailingList-new-panel" onClick={this.createNewMailingList}>
+            <MKIcon glyph="plus-circle" className="mailingList-new" />
+          </BSPanel>
+        </BSCol>
+      );
+    }
 
     if(itemsPerRow <= 1) {
       mailingLists = (

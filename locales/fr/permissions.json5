@@ -1,11 +1,16 @@
 {
-  user: {
-    profile: {
-      mailinglists: {
-        __description: "$t(mailinglist::adminEditWelcome)",
-        view: "Lister les listes de diffusion de tout utilisateur",
-        edit: "Modifier les listes de diffusion de tout utilisateur"
-      }
+  mailinglists: {
+    __description: "$t(mailinglist::adminEditWelcome)",
+    create: "Créer une nouvelle liste de diffusion",
+    read: "Lister toutes les listes de diffusion",
+    update: "Mettre à jour toute liste de diffusion",
+    delete: "Supprimer toute liste de diffusion",
+    send: "Envoyer un message à toute liste de diffusion",
+    users: {
+      __description: "Opérations sur les utilisateurs",
+      view: "Lister les listes de diffusion de tout utilisateur",
+      add: "Ajouter tout utilisateur à une liste de diffusion",
+      remove: "Retirer tout utilisateur d'une liste de diffusion"
     }
   }
 }

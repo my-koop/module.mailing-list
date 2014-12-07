@@ -4,8 +4,8 @@ var contributions = {
       mailingList: {
         titleKey: "mailinglist::mailingLists",
         component: {
-            resolve: "component",
-            value: "RegisterMailingList"
+          resolve: "component",
+          value: "RegisterMailingList"
         },
         priority: 100
       }
@@ -15,8 +15,8 @@ var contributions = {
         titleKey: "mailinglist::mailingListTab",
         hash: "mailinglists",
         component: {
-            resolve: "component",
-            value: "MailingListUserInfo"
+          resolve: "component",
+          value: "MailingListUserInfo"
         },
         priority: 300
       }
@@ -24,18 +24,16 @@ var contributions = {
     profileEdit: {
       mailingList: {
         titleKey: "mailinglist::mailingListTab",
-        hash: "mailinglist",
+        hash: "mailinglists",
         component: {
           resolve: "component",
           value: "MailingListUserInfo"
         },
         priority: 250,
         permissions: {
-          user: {
-            profile: {
-              mailinglists: {
-                  view: true
-              }
+          mailinglists: {
+            users: {
+              view: true
             }
           }
         }

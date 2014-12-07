@@ -24,18 +24,16 @@ var contributions = {
         profileEdit: {
             mailingList: {
                 titleKey: "mailinglist::mailingListTab",
-                hash: "mailinglist",
+                hash: "mailinglists",
                 component: {
                     resolve: "component",
                     value: "MailingListUserInfo"
                 },
                 priority: 250,
                 permissions: {
-                    user: {
-                        profile: {
-                            mailinglists: {
-                                view: true
-                            }
+                    mailinglists: {
+                        users: {
+                            view: true
                         }
                     }
                 }

@@ -1,11 +1,16 @@
 {
-  user: {
-    profile: {
-      mailinglists: {
-        __description: "$t(mailinglist::adminEditWelcome)",
-        view: "List the mailing lists of any user",
-        edit: "Edit the mailing lists of any user"
-      }
+  mailinglists: {
+    __description: "$t(mailinglist::adminEditWelcome)",
+    create: "Create a new mailing list",
+    read: "View any mailing list",
+    update: "Update any mailing list",
+    delete: "Delete any mailing list",
+    send: "Send a message to any mailing list",
+    users: {
+      __description: "Operations on users",
+      view: "List the mailing lists of any user",
+      add: "Add any user to a mailing list",
+      remove: "Remove any user from a mailing list"
     }
   }
 }
