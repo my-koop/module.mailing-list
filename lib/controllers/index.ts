@@ -154,6 +154,7 @@ export function attachControllers(
     {
       endPoint: endpoints.user.mailinglist.list,
       validation: validation.mailinglistId,
+      /*FIXME: Need a separate route for public mailing lists.
       permissions: {
         mailinglists: {
           users: {
@@ -161,6 +162,7 @@ export function attachControllers(
           }
         }
       },
+      */
       customPermissionDenied: validateCurrentUser
     },
     binder.makeSimpleController(mailingList.getUserMailingLists, function (req: Express.Request) {
