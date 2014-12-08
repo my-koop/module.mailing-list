@@ -6,6 +6,7 @@ var BSRow   = require("react-bootstrap/Row");
 var BSCol   = require("react-bootstrap/Col");
 var BSInput = require("react-bootstrap/Input");
 
+var MKPermissionMixin   = require("mykoop-user/components/PermissionMixin");
 var MKListModButtons    = require("mykoop-core/components/ListModButtons");
 var MKAlert             = require("mykoop-core/components/Alert");
 var MKFeedbacki18nMixin = require("mykoop-core/components/Feedbacki18nMixin");
@@ -20,7 +21,11 @@ var valueLinkProps = React.PropTypes.shape({
 }).isRequired;
 
 var MailingListEditPanel = React.createClass({
-  mixins: [React.addons.LinkedStateMixin, MKFeedbacki18nMixin],
+  mixins: [
+    MKPermissionMixin,
+    React.addons.LinkedStateMixin,
+    MKFeedbacki18nMixin
+  ],
 
   propTypes: {
     idLink: valueLinkProps,
@@ -124,6 +129,21 @@ var MailingListEditPanel = React.createClass({
 
   render: function() {
     var self = this;
+
+    var validatePermissions = this.constructor.validateUserPermissions;
+
+    var canEditList = validatePermissions({
+      mailinglists: {
+        update: true
+      }
+    });
+
+    var canDeleteList = validatePermissions({
+      mailinglists: {
+        delete: true
+      }
+    });
+
     var isNew = this.isNewMailingList();
     var buttonsConfig = [
       {
@@ -151,12 +171,20 @@ var MailingListEditPanel = React.createClass({
         callback: _.bind(this.deleteMailingList, this)
       }
     ];
-    if(isNew) {
+    if (isNew) {
       buttonsConfig[1].icon = "remove";
       buttonsConfig[1].warningMessage = __("areYouSure");
+    } else {
+      if (!canEditList) {
+        buttonsConfig.shift();
+      }
+
+      if (!canDeleteList) {
+        buttonsConfig.pop();
+      }
     }
     var showAtRegistration = !!this.props.showAtRegistrationLink.value;
-    var registrationButton = [{
+    var registrationButton = canEditList || isNew ? [{
       icon:"check",
       tooltip: {
         text: __("mailinglist::showAtRegistrationTooltip"),
@@ -173,7 +201,7 @@ var MailingListEditPanel = React.createClass({
         self.props.showAtRegistrationLink.requestChange(!showAtRegistration);
         e.target.blur();
       }
-    }];
+    }] : [];
 
     return (
       <BSPanel className="mailingList-edit-min-height">
@@ -191,23 +219,29 @@ var MailingListEditPanel = React.createClass({
               />
             </BSCol>
             <BSCol xs={8} className="mailingList-name-form">
-              <BSInput
-                type="text"
-                label={__("name")}
-                valueLink={this.props.nameLink}
-              />
+              {canEditList ?
+                <BSInput
+                  type="text"
+                  label={__("name")}
+                  valueLink={this.props.nameLink}
+                /> :
+                <strong>{__("name")}</strong>
+              }
             </BSCol>
 
           </BSRow>
           <BSRow>
             <BSCol md={12}>
-              <BSInput
-                type="textarea"
-                className="resize-vertical"
-                label={__("mailinglist::description")}
-                placeholder={__("mailinglist::descriptionPlaceholder")}
-                valueLink={this.props.descriptionLink}
-              />
+              {canEditList ?
+                <BSInput
+                  type="textarea"
+                  className="resize-vertical"
+                  label={__("mailinglist::description")}
+                  placeholder={__("mailinglist::descriptionPlaceholder")}
+                  valueLink={this.props.descriptionLink}
+                /> :
+                <p>{this.props.descriptionLink.value}</p>
+              }
             </BSCol>
           </BSRow>
         </BSGrid>
