@@ -12,6 +12,12 @@ var id = {
 // id needs to be cloned because _.assign modifies the source
 var requiredId = _.assign(_.clone(id), {presence: {message: "^empty"}});
 
+validate.addValidator("object", function(value) {
+  if(!_.isPlainObject(value)) {
+    return "^notObject"
+  }
+});
+
 export function mailingListDefinition(obj) {
   var constraint = {
     id: id,
@@ -25,7 +31,9 @@ export function mailingListDefinition(obj) {
       }
     },
     description: {},
-    permissions: {}
+    permissions: {
+      object: ""
+    }
   };
   return validate(obj, constraint);
 }

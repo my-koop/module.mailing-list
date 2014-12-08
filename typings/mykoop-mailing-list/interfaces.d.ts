@@ -5,7 +5,7 @@ declare module MailingList {
     id?: number
     name: string;
     description: string;
-    permissions?: any; // no support for now
+    permissions: any;
     showAtRegistration: boolean;
   }
 

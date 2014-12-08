@@ -33,11 +33,21 @@ var MailingListEditPanel = React.createClass({
     descriptionLink: valueLinkProps,
     showAtRegistrationLink: valueLinkProps,
     onDelete: React.PropTypes.func,
-    onSave: React.PropTypes.func
+    onSave: React.PropTypes.func,
+    permissionsLink: valueLinkProps,
+    onMailingReset: React.PropTypes.func,
+    requestPermissionChanges: React.PropTypes.func
   },
 
-  getInitialState: function() {
-    return this.getValues();
+  getInitialState: function(props) {
+    props = props || this.props;
+    return {
+      id: props.idLink.value,
+      name: props.nameLink.value,
+      description: props.descriptionLink.value,
+      showAtRegistration: props.showAtRegistrationLink.value,
+      permissions: _.clone(props.permissionsLink.value)
+    };
   },
 
   componentWillReceiveProps: function (nextProps) {
@@ -46,9 +56,7 @@ var MailingListEditPanel = React.createClass({
     if(
         nextProps.idLink.value !== this.props.idLink.value
     ) {
-      // FIXME:: do not modify this.props directly
-      this.props = nextProps;
-      this.setState(this.getValues());
+      this.setState(this.getInitialState(nextProps));
     }
   },
 
@@ -57,7 +65,8 @@ var MailingListEditPanel = React.createClass({
       id: this.getField("id"),
       name: this.getField("name"),
       description: this.getField("description"),
-      showAtRegistration: this.getField("showAtRegistration")
+      showAtRegistration: this.getField("showAtRegistration"),
+      permissions: this.getField("permissions")
     };
   },
 
@@ -104,6 +113,16 @@ var MailingListEditPanel = React.createClass({
     });
   },
 
+  resetMailingList: function() {
+    var newValues = {
+      name: this.state.name,
+      description: this.state.description,
+      showAtRegistration: this.state.showAtRegistration,
+      permissions: _.clone(this.state.permissions)
+    }
+    this.props.onMailingReset && this.props.onMailingReset(newValues);
+  },
+
   deleteMailingList: function() {
     var self = this;
     var isNew = this.isNewMailingList();
@@ -144,46 +163,55 @@ var MailingListEditPanel = React.createClass({
       }
     });
 
-    var isNew = this.isNewMailingList();
-    var buttonsConfig = [
-      {
-        icon: "save",
-        tooltip: {
-          text: __("save"),
-          overlayProps: {
-            placement: "top"
-          }
-        },
-        props: {
-          disabled: !this.hasChanges()
-        },
-        callback: _.bind(this.saveChanges, this)
-      },
-      {
-        icon: "trash",
-        tooltip: {
-          text: __("remove"),
-          overlayProps: {
-            placement: "top"
-          }
-        },
-        warningMessage: __("mailinglist::deleteMailingListWarning"),
-        callback: _.bind(this.deleteMailingList, this)
-      }
-    ];
-    if (isNew) {
-      buttonsConfig[1].icon = "remove";
-      buttonsConfig[1].warningMessage = __("areYouSure");
-    } else {
-      if (!canEditList) {
-        buttonsConfig.shift();
-      }
-
-      if (!canDeleteList) {
-        buttonsConfig.pop();
-      }
-    }
     var showAtRegistration = !!this.props.showAtRegistrationLink.value;
+    var hasChanges = this.hasChanges();
+    var isNew = this.isNewMailingList();
+    var saveButton = canEditList && {
+      icon: "save",
+      tooltip: {
+        text: __("save"),
+        overlayProps: {
+          placement: "top"
+        }
+      },
+      props: {
+        disabled: !hasChanges
+      },
+      callback: _.bind(this.saveChanges, this)
+    };
+    var editPermissionsButton = !showAtRegistration && canEditList && {
+      icon: "shield",
+      tooltip: {
+        text: __("mailinglist::editPermissionsTooltip"),
+        overlayProps: {placement: "top"}
+      },
+      callback: this.props.requestPermissionChanges
+    };
+    var cancelButton = hasChanges && {
+      icon: "recycle",
+      tooltip: {
+        text: __("cancel"),
+        overlayProps: {placement: "top"}
+      },
+      warningMessage: __("areYouSure"),
+      callback: this.resetMailingList
+    };
+    var deleteButton = canDeleteList && !hasChanges && {
+      icon: isNew ? "remove" : "trash",
+      tooltip: {
+        text: __("remove"),
+        overlayProps: {placement: "top"}
+      },
+      warningMessage: isNew ? __("areYouSure") : __("mailinglist::deleteMailingListWarning"),
+      callback: this.deleteMailingList
+    };
+    var buttonsConfig = _.compact([
+      saveButton,
+      editPermissionsButton,
+      deleteButton,
+      cancelButton
+    ]);
+
     var registrationButton = canEditList || isNew ? [{
       icon:"check",
       tooltip: {
@@ -225,7 +253,7 @@ var MailingListEditPanel = React.createClass({
                   label={__("name")}
                   valueLink={this.props.nameLink}
                 /> :
-                <strong>{__("name")}</strong>
+                <strong>{this.props.nameLink.value}</strong>
               }
             </BSCol>
 

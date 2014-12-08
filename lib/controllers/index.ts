@@ -28,7 +28,8 @@ export function attachControllers(
       var params: MailingList.AddMailingList.Params = {
         showAtRegistration: !!req.param("showAtRegistration", false),
         name: req.param("name"),
-        description: req.param("description")
+        description: req.param("description"),
+        permissions: req.body.permissions || {}
       };
       return params;
     })
@@ -50,7 +51,8 @@ export function attachControllers(
         id: parseInt(req.param("id")),
         name: req.param("name"),
         description: req.param("description"),
-        showAtRegistration: !!req.param("showAtRegistration", false)
+        showAtRegistration: !!req.param("showAtRegistration", false),
+        permissions: req.body.permissions || {}
       };
       return params;
     })

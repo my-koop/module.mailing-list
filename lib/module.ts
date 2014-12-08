@@ -39,7 +39,8 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
         var mailingList: MailingList.MailingList = {
           name: params.name,
           description: params.description,
-          showAtRegistration: params.showAtRegistration
+          showAtRegistration: params.showAtRegistration,
+          permissions: JSON.stringify(params.permissions || {})
         };
         connection.query(
           "INSERT INTO mailinglist SET ?",
@@ -125,7 +126,7 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
           whereClause = "WHERE showAtRegistration = 1"
         }
         connection.query(
-          "SELECT idMailingList AS id, name, description, showAtRegistration \
+          "SELECT idMailingList AS id, name, description, showAtRegistration, permissions \
           FROM mailinglist " + whereClause,
           [],
           function(err, rows) {
@@ -138,7 +139,8 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
                   id: row.id,
                   name: row.name,
                   description: row.description,
-                  showAtRegistration: row.showAtRegistration
+                  showAtRegistration: row.showAtRegistration,
+                  permissions: JSON.parse(row.permissions || "{}")
                 }
               }
             );
@@ -172,8 +174,10 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
         var mailingList: MailingList.MailingList = {
           name: params.name,
           description: params.description,
-          showAtRegistration: params.showAtRegistration
+          showAtRegistration: params.showAtRegistration,
+          permissions: JSON.stringify(params.permissions || {})
         };
+        console.log(mailingList.permissions);
         connection.query(
           "UPDATE mailinglist SET ? WHERE idMailingList = ?",
           [mailingList, params.id],
