@@ -2,6 +2,8 @@ import utils = require("mykoop-utils");
 import async = require("async");
 import _ = require("lodash");
 import controllerList = require("./controllers/index");
+import MailingList = require("./classes/MailingList");
+
 var logger = utils.getLogger(module);
 var ApplicationError = utils.errors.ApplicationError;
 var DatabaseError = utils.errors.DatabaseError;
@@ -108,9 +110,40 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
     ], callback);
   }
 
-  getMailingLists(
+  getMailingList(
     params: MailingList.GetMailingList.Params,
     callback: MailingList.GetMailingList.Callback
+  ) {
+    this.callWithConnection(
+      this.__getMailingList,
+      params,
+      callback
+    );
+  }
+  __getMailingList(
+    connection: mysql.IConnection,
+    params: MailingList.GetMailingList.Params,
+    callback: MailingList.GetMailingList.Callback
+  ) {
+    var self = this;
+    connection.query(
+      MailingList.queryMailingListInfo + " WHERE idMailingList=?",
+      [params.id],
+      function(err, res) {
+        if(err) {
+          return callback(new DatabaseError(err));
+        }
+        if(res.length !== 1) {
+          return callback(new ResourceNotFoundError(null, {id: "notFound"}));
+        }
+        callback(null, new MailingList(res[0]));
+      }
+    );
+  }
+
+  getMailingLists(
+    params: MailingList.GetMailingLists.Params,
+    callback: MailingList.GetMailingLists.Callback
   ) {
     this.callWithConnection(
       this.__getMailingLists,
@@ -121,8 +154,8 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
 
   __getMailingLists(
     connection: mysql.IConnection,
-    params: MailingList.GetMailingList.Params,
-    callback: MailingList.GetMailingList.Callback
+    params: MailingList.GetMailingLists.Params,
+    callback: MailingList.GetMailingLists.Callback
   ) {
     var self = this;
     async.waterfall([
@@ -138,8 +171,7 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
           whereClause = "WHERE showAtRegistration = 1"
         }
         connection.query(
-          "SELECT idMailingList AS id, name, description, showAtRegistration, permissions \
-          FROM mailinglist " + whereClause,
+          MailingList.queryMailingListInfo + whereClause,
           [],
           function(err, rows) {
             if(err) {
@@ -359,6 +391,75 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
         );
       }
     )
+  }
+
+  getMailingListUsers(
+    params: MailingList.GetMailingListUsers.Params,
+    callback: MailingList.GetMailingListUsers.Callback
+  ) {
+    this.callWithConnection(this.__getMailingListUsers, params, callback);
+  }
+
+  __getMailingListUsers(
+    connection: mysql.IConnection,
+    params: MailingList.GetMailingListUsers.Params,
+    callback: MailingList.GetMailingListUsers.Callback
+  ) {
+    var self = this;
+    var toEmails = [];
+    var userInMailingList;
+    var requiredPermissions;
+    async.waterfall([
+      function(next) {
+        connection.query(
+          "SELECT \
+            email, \
+            idUser, \
+            perms, \
+            permissions\
+          FROM mailinglist_users mu\
+          INNER JOIN user ON idUser=id\
+          LEFT JOIN mailinglist m ON m.idMailingList=mu.idMailingList\
+          WHERE m.idMailingList=?",
+          [params.id],
+          function(err, res) {
+            if(err) {
+              return next(new DatabaseError(err));
+            }
+            if(res.length === 0) {
+              return next(new ApplicationError(null, {id: "empty"}));
+            }
+            requiredPermissions = self.deserializePermissions(res[0].permissions || {});
+            requiredPermissions = _.isEqual(requiredPermissions, {}) ?
+              null: requiredPermissions;
+            userInMailingList = _.map(res, function(user: any) {
+              return {
+                email: user.email,
+                id: user.idUser,
+                // Deserialize only if there are permissions on the mailing list
+                permissions: requiredPermissions && self.deserializePermissions(user.perms)
+              };
+            });
+            next(null);
+          }
+        );
+      },
+      function(next) {
+        // FIXME:: Should go update database with invalid users
+        userInMailingList = _.filter(userInMailingList, function(user: any) {
+          return user.email &&
+            (
+              !requiredPermissions ||
+              self.user.validatePermissions(
+                user.permissions,
+                requiredPermissions
+              )
+            )
+          ;
+        });
+        next(null, userInMailingList);
+      }
+    ], <any>callback);
   }
 
   sendEmail(

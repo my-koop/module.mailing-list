@@ -125,7 +125,7 @@ export function attachControllers(
   // Get mailing for registration only
   binder.attach(
     {endPoint: endpoints.mailinglist.registration},
-    binder.makeSimpleController<MailingList.GetMailingList.Params>(
+    binder.makeSimpleController<MailingList.GetMailingLists.Params>(
       mailingList.getMailingLists,
       function() {
         return {

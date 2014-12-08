@@ -8,6 +8,8 @@
 declare module mkmailinglist {
 
   export interface Module extends mykoop.IModule {
+    deserializePermissions: (permissions: string) => any;
+    serializePermissions: (permissions: any) => string;
     addMailingList(
       params: MailingList.AddMailingList.Params,
       callback: MailingList.AddMailingList.Callback
@@ -29,24 +31,35 @@ declare module mkmailinglist {
     );
 
     getMailingLists(
-      params: MailingList.GetMailingList.Params,
-      callback: MailingList.GetMailingList.Callback
+      params: MailingList.GetMailingLists.Params,
+      callback: MailingList.GetMailingLists.Callback
     );
     __getMailingLists(
       connection: mysql.IConnection,
-      params: MailingList.GetMailingList.Params,
-      callback: MailingList.GetMailingList.Callback
+      params: MailingList.GetMailingLists.Params,
+      callback: MailingList.GetMailingLists.Callback
     );
 
+    // Get mailing list the user is registered to
     getUserMailingLists (
       params: MailingList.GetUserMailingLists.Params,
       callback: MailingList.GetUserMailingLists.Callback
     );
-
     __getUserMailingLists (
       connection: mysql.IConnection,
       params: MailingList.GetUserMailingLists.Params,
       callback: MailingList.GetUserMailingLists.Callback
+    );
+
+    // Get users registered to the mailing list
+    getMailingListUsers(
+      params: MailingList.GetMailingListUsers.Params,
+      callback: MailingList.GetMailingListUsers.Callback
+    );
+    __getMailingListUsers(
+      connection: mysql.IConnection,
+      params: MailingList.GetMailingListUsers.Params,
+      callback: MailingList.GetMailingListUsers.Callback
     );
 
     updateMailingList(
