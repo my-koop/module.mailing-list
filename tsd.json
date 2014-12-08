@@ -31,6 +31,9 @@
     },
     "mykoop-user/mykoop-communications.d.ts": {
       "commit": "c4e024753d4a3f168ef10b2ebb7282ae41659589"
+    },
+    "express-session/express-session.d.ts": {
+      "commit": "8f28c7a99b8e17055874601b3670f0ae2cd7da79"
     }
   },
   "dependencies": {

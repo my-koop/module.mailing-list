@@ -10,3 +10,4 @@
 /// <reference path="mykoop-user/mykoop-user.d.ts" />
 /// <reference path="mykoop-communications/mykoop-communications.d.ts" />
 /// <reference path="lodash/lodash.d.ts" />
+/// <reference path="express-session/express-session.d.ts" />

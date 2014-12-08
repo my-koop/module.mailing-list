@@ -28,6 +28,8 @@ declare module MailingList {
   module GetMailingList {
     export interface Params {
       inRegistration?: boolean;
+      requesterPermissions?: any;
+      userId?: number;
     }
     export interface Callback {
       (err?, result?: MailingList[]) : void;

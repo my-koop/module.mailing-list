@@ -119,8 +119,15 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
     params: MailingList.GetMailingList.Params,
     callback: MailingList.GetMailingList.Callback
   ) {
+    var self = this;
     async.waterfall([
-      function(callback) {
+      function(next) {
+        if(params.userId) {
+          return self.user.__getProfile(connection, {id: params.userId}, next);
+        }
+        next(null, null);
+      },
+      function(profile: mkuser.UserProfile, callback) {
         var whereClause = "";
         if(params.inRegistration) {
           whereClause = "WHERE showAtRegistration = 1"
@@ -144,6 +151,18 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
                 }
               }
             );
+            if(profile) {
+              profile.permissions = profile.permissions || {};
+            }
+            var permissionsToValidate = profile.permissions || params.requesterPermissions;
+            if(permissionsToValidate !== undefined) {
+              mailingLists = mailingLists.filter(function(mailingList) {
+                return self.user.validatePermissions(
+                  permissionsToValidate,
+                  mailingList.permissions
+                );
+              });
+            }
             callback(null, mailingLists);
           }
         )

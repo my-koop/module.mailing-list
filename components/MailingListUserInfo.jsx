@@ -20,7 +20,8 @@ var MailingListUserInfo = React.createClass({
   mixins: [MKPermissionMixin, MKFeedbacki18nMixin],
 
   propTypes: {
-    userId: React.PropTypes.number.isRequired
+    userId: React.PropTypes.number.isRequired,
+    current: React.PropTypes.bool
   },
 
   getInitialState: function() {
@@ -65,8 +66,11 @@ var MailingListUserInfo = React.createClass({
         });
       });
 
-      actions.mailinglist.list({
-        i18nErrors: {}
+      actions.mailinglist.listAvailable({
+        i18nErrors: {},
+        data: {
+          userId: !self.props.current && self.props.userId
+        }
       }, function(err, res) {
         if(err) {
           return self.setFeedback(err.i18n, "danger");

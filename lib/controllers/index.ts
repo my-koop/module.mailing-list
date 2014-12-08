@@ -90,6 +90,38 @@ export function attachControllers(
     binder.makeSimpleController(mailingList.getMailingLists)
   );
 
+  // Get all available mailing lists
+  binder.attach(
+    {
+      endPoint: endpoints.mailinglist.listAvailable,
+      permissions: {
+        loggedIn: true
+      },
+      customPermissionGranted: function(req: Express.Request, callback) {
+        var userId = req.query.userId;
+        if(userId) {
+          // Requesting mailing list for another user, make sure this profile is
+          // allowed to query someone else's profile
+          var user = <mkuser.Module>mailingList.getModuleManager().get("user");
+          if(!user.validatePermissions(req.session.user.perms, {
+            user: {profile: {view: true}},
+            mailinglists: {read: true}
+          })) {
+            return callback(new Error("Not allowed to see user profile &| mailing lists"));
+          }
+        }
+        callback();
+      }
+    },
+    binder.makeSimpleController(mailingList.getMailingLists, function(req) {
+      var userId = req.query.userId;
+      return {
+        requesterPermissions: userId ? req.session.user.perms || {} : undefined,
+        userId: userId
+      }
+    })
+  );
+
   // Get mailing for registration only
   binder.attach(
     {endPoint: endpoints.mailinglist.registration},
@@ -156,7 +188,6 @@ export function attachControllers(
     {
       endPoint: endpoints.user.mailinglist.list,
       validation: validation.mailinglistId,
-      /*FIXME: Need a separate route for public mailing lists.
       permissions: {
         mailinglists: {
           users: {
@@ -164,7 +195,6 @@ export function attachControllers(
           }
         }
       },
-      */
       customPermissionDenied: validateCurrentUser
     },
     binder.makeSimpleController(mailingList.getUserMailingLists, function (req: Express.Request) {
