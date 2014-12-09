@@ -8,85 +8,98 @@
 declare module mkmailinglist {
 
   export interface Module extends mykoop.IModule {
+    deserializePermissions: (permissions: string) => any;
+    serializePermissions: (permissions: any) => string;
     addMailingList(
-      params: MailingList.AddMailingList.Params,
-      callback: MailingList.AddMailingList.Callback
+      params: mkmailinglist.AddMailingList.Params,
+      callback: mkmailinglist.AddMailingList.Callback
     );
     __addMailingList(
       connection: mysql.IConnection,
-      params: MailingList.AddMailingList.Params,
-      callback: MailingList.AddMailingList.Callback
+      params: mkmailinglist.AddMailingList.Params,
+      callback: mkmailinglist.AddMailingList.Callback
     );
 
     deleteMailingList(
-      params: MailingList.DeleteMailingList.Params,
-      callback: MailingList.DeleteMailingList.Callback
+      params: mkmailinglist.DeleteMailingList.Params,
+      callback: mkmailinglist.DeleteMailingList.Callback
     );
     __deleteMailingList(
       connection: mysql.IConnection,
-      params: MailingList.DeleteMailingList.Params,
-      callback: MailingList.DeleteMailingList.Callback
+      params: mkmailinglist.DeleteMailingList.Params,
+      callback: mkmailinglist.DeleteMailingList.Callback
     );
 
     getMailingLists(
-      params: MailingList.GetMailingList.Params,
-      callback: MailingList.GetMailingList.Callback
+      params: mkmailinglist.GetMailingLists.Params,
+      callback: mkmailinglist.GetMailingLists.Callback
     );
     __getMailingLists(
       connection: mysql.IConnection,
-      params: MailingList.GetMailingList.Params,
-      callback: MailingList.GetMailingList.Callback
+      params: mkmailinglist.GetMailingLists.Params,
+      callback: mkmailinglist.GetMailingLists.Callback
     );
 
+    // Get mailing list the user is registered to
     getUserMailingLists (
-      params: MailingList.GetUserMailingLists.Params,
-      callback: MailingList.GetUserMailingLists.Callback
+      params: mkmailinglist.GetUserMailingLists.Params,
+      callback: mkmailinglist.GetUserMailingLists.Callback
     );
-
     __getUserMailingLists (
       connection: mysql.IConnection,
-      params: MailingList.GetUserMailingLists.Params,
-      callback: MailingList.GetUserMailingLists.Callback
+      params: mkmailinglist.GetUserMailingLists.Params,
+      callback: mkmailinglist.GetUserMailingLists.Callback
+    );
+
+    // Get users registered to the mailing list
+    getMailingListUsers(
+      params: mkmailinglist.GetMailingListUsers.Params,
+      callback: mkmailinglist.GetMailingListUsers.Callback
+    );
+    __getMailingListUsers(
+      connection: mysql.IConnection,
+      params: mkmailinglist.GetMailingListUsers.Params,
+      callback: mkmailinglist.GetMailingListUsers.Callback
     );
 
     updateMailingList(
-      params: MailingList.UpdateMailingList.Params,
-      callback: MailingList.UpdateMailingList.Callback
+      params: mkmailinglist.UpdateMailingList.Params,
+      callback: mkmailinglist.UpdateMailingList.Callback
     );
     __updateMailingList(
       connection: mysql.IConnection,
-      params: MailingList.UpdateMailingList.Params,
-      callback: MailingList.UpdateMailingList.Callback
+      params: mkmailinglist.UpdateMailingList.Params,
+      callback: mkmailinglist.UpdateMailingList.Callback
     );
 
     registerToMailingLists(
-      params: MailingList.RegisterToMailingLists.Params,
-      callback: MailingList.RegisterToMailingLists.Callback
+      params: mkmailinglist.RegisterToMailingLists.Params,
+      callback: mkmailinglist.RegisterToMailingLists.Callback
     );
     __registerToMailingLists(
       connection: mysql.IConnection,
-      params: MailingList.RegisterToMailingLists.Params,
-      callback: MailingList.RegisterToMailingLists.Callback
+      params: mkmailinglist.RegisterToMailingLists.Params,
+      callback: mkmailinglist.RegisterToMailingLists.Callback
     );
 
     unregisterToMailingLists(
-      params: MailingList.UnregisterToMailingLists.Params,
-      callback: MailingList.UnregisterToMailingLists.Callback
+      params: mkmailinglist.UnregisterToMailingLists.Params,
+      callback: mkmailinglist.UnregisterToMailingLists.Callback
     );
     __unregisterToMailingLists(
       connection: mysql.IConnection,
-      params: MailingList.UnregisterToMailingLists.Params,
-      callback: MailingList.UnregisterToMailingLists.Callback
+      params: mkmailinglist.UnregisterToMailingLists.Params,
+      callback: mkmailinglist.UnregisterToMailingLists.Callback
     );
 
     sendEmail(
-      params: MailingList.SendEmail.Params,
-      callback: MailingList.SendEmail.Callback
+      params: mkmailinglist.SendEmail.Params,
+      callback: mkmailinglist.SendEmail.Callback
     );
     __sendEmail(
       connection: mysql.IConnection,
-      params: MailingList.SendEmail.Params,
-      callback: MailingList.SendEmail.Callback
+      params: mkmailinglist.SendEmail.Params,
+      callback: mkmailinglist.SendEmail.Callback
     );
   }
 

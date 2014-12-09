@@ -13,10 +13,9 @@
 
   config: "Configurations",
   globalEmail: "Primary email",
-
-  config: "Configurations",
-  globalEmail: "Primary email",
   subject: "Subject",
+  editUsersInMailingList: "Edit users in this mailing list",
+  userList: "User list",
 
   permissionChoiceFor: "Permissions for",
   editPermissionsTooltip: "Modify permissions required for this mailing list",

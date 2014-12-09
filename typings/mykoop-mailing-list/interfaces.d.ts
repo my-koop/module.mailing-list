@@ -1,5 +1,5 @@
 
-declare module MailingList {
+declare module mkmailinglist {
 
   export interface MailingList {
     id?: number
@@ -27,12 +27,23 @@ declare module MailingList {
 
   module GetMailingList {
     export interface Params {
+      id: number;
+    }
+    export interface Result extends MailingList {}
+    export interface Callback {
+      (err?, result?: Result) : void;
+    }
+  }
+
+  module GetMailingLists {
+    export interface Params {
       inRegistration?: boolean;
       requesterPermissions?: any;
       userId?: number;
     }
+    export interface Result extends Array<MailingList> {}
     export interface Callback {
-      (err?, result?: MailingList[]) : void;
+      (err?, result?: Result) : void;
     }
   }
 
@@ -80,6 +91,24 @@ declare module MailingList {
     }
     export interface Callback {
       (err?: Error): void;
+    }
+  }
+
+  module GetMailingListUsers {
+    export interface Params {
+      // mailing list id
+      id: number;
+    }
+    export interface Result {
+      users: {
+        id: number;
+        firstName: string;
+        lastName: string;
+        email: string;
+      }[];
+    }
+    export interface Callback {
+      (err: Error, result?: Result): void;
     }
   }
 }

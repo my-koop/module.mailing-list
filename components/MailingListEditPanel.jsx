@@ -10,7 +10,11 @@ var MKPermissionMixin   = require("mykoop-user/components/PermissionMixin");
 var MKListModButtons    = require("mykoop-core/components/ListModButtons");
 var MKAlert             = require("mykoop-core/components/Alert");
 var MKFeedbacki18nMixin = require("mykoop-core/components/Feedbacki18nMixin");
+var MKAbstractModal     = require("mykoop-core/components/AbstractModal");
+var MKUserList          = require("mykoop-core/components/UserList");
+var MKUserListWrapper   = require("mykoop-core/components/UserListWrapper");
 
+var validatePermissions = MKPermissionMixin.statics.validateUserPermissions;
 var __ = require("language").__;
 var _ = require("lodash");
 var actions = require("actions");
@@ -48,6 +52,47 @@ var MailingListEditPanel = React.createClass({
       showAtRegistration: props.showAtRegistrationLink.value,
       permissions: _.clone(props.permissionsLink.value)
     };
+  },
+
+  canEditList: false,
+  canViewUsers: false,
+  canAddUsers: false,
+  canDeleteUsers: false,
+  canDeleteList: false,
+  componentWillMount: function () {
+    this.canEditList = validatePermissions({
+      mailinglists: {
+        update: true
+      }
+    });
+
+    this.canViewUsers = this.canEditList && validatePermissions({
+      mailinglists: {
+        users: {
+          view: true
+        }
+      }
+    });
+    this.canAddUsers = this.canViewUsers && validatePermissions({
+      mailinglists: {
+        users: {
+          add: true,
+        }
+      }
+    });
+    this.canDeleteUsers = this.canViewUsers && validatePermissions({
+      mailinglists: {
+        users: {
+          delete: true,
+        }
+      }
+    });
+
+    this.canDeleteList = validatePermissions({
+      mailinglists: {
+        delete: true
+      }
+    });
   },
 
   componentWillReceiveProps: function (nextProps) {
@@ -146,27 +191,46 @@ var MailingListEditPanel = React.createClass({
     });
   },
 
+  retrieveUsers: function(callback) {
+    var id = this.getField("id");
+    actions.mailinglist.listUsers({
+      i18nErrors: {},
+      data:{
+        id: id
+      }
+    }, function(err, res) {
+      callback(err, res && res.users);
+    });
+  },
+  onAddUser: function(user, callback) {
+    var id = this.getField("id");
+    actions.user.mailinglist.register({
+      i18nErrors: {},
+      data: {
+        id: user.id,
+        idMailingLists: [id]
+      }
+    }, callback);
+  },
+  onDeleteUser: function(user, callback) {
+    var id = this.getField("id");
+    actions.user.mailinglist.unregister({
+      i18nErrors: {},
+      data: {
+        id: user.id,
+        idMailingLists: [id]
+      }
+    }, callback);
+  },
+
   render: function() {
     var self = this;
 
-    var validatePermissions = this.constructor.validateUserPermissions;
-
-    var canEditList = validatePermissions({
-      mailinglists: {
-        update: true
-      }
-    });
-
-    var canDeleteList = validatePermissions({
-      mailinglists: {
-        delete: true
-      }
-    });
 
     var showAtRegistration = !!this.props.showAtRegistrationLink.value;
     var hasChanges = this.hasChanges();
     var isNew = this.isNewMailingList();
-    var saveButton = canEditList && {
+    var saveButton = this.canEditList && {
       icon: "save",
       tooltip: {
         text: __("save"),
@@ -179,7 +243,7 @@ var MailingListEditPanel = React.createClass({
       },
       callback: _.bind(this.saveChanges, this)
     };
-    var editPermissionsButton = !showAtRegistration && canEditList && {
+    var editPermissionsButton = !showAtRegistration && this.canEditList && {
       icon: "shield",
       tooltip: {
         text: __("mailinglist::editPermissionsTooltip"),
@@ -196,7 +260,7 @@ var MailingListEditPanel = React.createClass({
       warningMessage: __("areYouSure"),
       callback: this.resetMailingList
     };
-    var deleteButton = canDeleteList && !hasChanges && {
+    var deleteButton = this.canDeleteList && !hasChanges && {
       icon: isNew ? "remove" : "trash",
       tooltip: {
         text: __("remove"),
@@ -205,14 +269,37 @@ var MailingListEditPanel = React.createClass({
       warningMessage: isNew ? __("areYouSure") : __("mailinglist::deleteMailingListWarning"),
       callback: this.deleteMailingList
     };
+    var userList = this.canViewUsers && (
+      <MKUserListWrapper
+        noAdd={!this.canAddUsers}
+        noDelete={!this.canDeleteUsers}
+        retrieveUsers={this.retrieveUsers}
+        onAddUser={this.onAddUser}
+        onDeleteUser={this.onDeleteUser}
+      />
+    );
+    var editUsersButton = this.canViewUsers && {
+      icon: "users",
+      tooltip: {
+        text: __("mailinglist::editUsersInMailingList"),
+        overlayProps: {placement: "top"}
+      },
+      modalTrigger: (
+        <MKAbstractModal
+          title={__("mailinglist::userList")}
+          modalBody={userList}
+        />
+      )
+    };
     var buttonsConfig = _.compact([
       saveButton,
+      editUsersButton,
       editPermissionsButton,
       deleteButton,
       cancelButton
     ]);
 
-    var registrationButton = canEditList || isNew ? [{
+    var registrationButton = this.canEditList || isNew ? [{
       icon:"check",
       tooltip: {
         text: __("mailinglist::showAtRegistrationTooltip"),
@@ -231,12 +318,15 @@ var MailingListEditPanel = React.createClass({
       }
     }] : [];
 
+    var minWidthClass = "list-mod-min-width-" +
+      (buttonsConfig.length + registrationButton.length + 2);
+
     return (
       <BSPanel className="mailingList-edit-min-height">
         {this.renderFeedback()}
         <BSGrid className="mailingListPanel" fluid>
           <BSRow>
-            <BSCol md={4} className="pull-right mailingList-actions-buttons">
+            <BSCol md={4} className={"pull-right mailingList-actions-buttons " + minWidthClass}>
               <MKListModButtons
                 className="pull-right"
                 buttons={buttonsConfig}
@@ -247,7 +337,7 @@ var MailingListEditPanel = React.createClass({
               />
             </BSCol>
             <BSCol xs={8} className="mailingList-name-form">
-              {canEditList ?
+              {this.canEditList ?
                 <BSInput
                   type="text"
                   label={__("name")}
@@ -260,7 +350,7 @@ var MailingListEditPanel = React.createClass({
           </BSRow>
           <BSRow>
             <BSCol md={12}>
-              {canEditList ?
+              {this.canEditList ?
                 <BSInput
                   type="textarea"
                   className="resize-vertical"
