@@ -69,7 +69,7 @@ var MailingListUserInfo = React.createClass({
       actions.mailinglist.listAvailable({
         i18nErrors: {},
         data: {
-          userId: !self.props.current && self.props.userId
+          userId: self.props.current ? undefined : self.props.userId
         }
       }, function(err, res) {
         if(err) {

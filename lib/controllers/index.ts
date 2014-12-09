@@ -94,10 +94,10 @@ export function attachControllers(
   binder.attach(
     {
       endPoint: endpoints.mailinglist.listAvailable,
-      permissions: {
-        loggedIn: true
-      },
       customPermissionGranted: function(req: Express.Request, callback) {
+        if(!req.session.user) {
+          return callback(new Error("Not logged in"));
+        }
         var userId = req.query.userId;
         if(userId) {
           // Requesting mailing list for another user, make sure this profile is
