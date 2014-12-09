@@ -29,5 +29,17 @@
         tooLong: "Le nom doit contenir un maximum de __variable__ caractères"
       }
     }
-  }
+  },
+
+  navbar: {
+    quickActions: {
+      sendEmail: "Envoyer un courriel"
+    }
+  },
+
+  sidebar: {
+    mailinglists: "$t(mailinglist::mailingLists)",
+    sendEmail: "$t(mailinglist::navbar.quickActions.sendEmail)",
+    manageLists: "Gérer les listes",
+  },
 }
