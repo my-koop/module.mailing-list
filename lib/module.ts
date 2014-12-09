@@ -10,12 +10,16 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
   db: mkdatabase.Module;
   user: mkuser.Module;
   communications: mkcommunications.Module;
-
+  deserializePermissions: (permissions: string) => any;
+  serializePermissions: (permissions: any) => string;
   init() {
     this.db = <mkdatabase.Module>this.getModuleManager().get("database");
     this.user = <mkuser.Module>this.getModuleManager().get("user");
     this.communications = <mkcommunications.Module>this.getModuleManager().get("communications");
     controllerList.attachControllers(new utils.ModuleControllersBinder(this));
+
+    this.deserializePermissions = (<any>this.user.constructor).deserializePermissions;
+    this.serializePermissions = (<any>this.user.constructor).serializePermissions;
   }
 
   addMailingList(
@@ -34,12 +38,14 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
     params: MailingList.AddMailingList.Params,
     callback: MailingList.AddMailingList.Callback
   ) {
+    var self = this;
     async.waterfall([
       function(callback) {
         var mailingList: MailingList.MailingList = {
           name: params.name,
           description: params.description,
-          showAtRegistration: params.showAtRegistration
+          showAtRegistration: params.showAtRegistration,
+          permissions: self.serializePermissions(params.permissions || {})
         };
         connection.query(
           "INSERT INTO mailinglist SET ?",
@@ -118,14 +124,21 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
     params: MailingList.GetMailingList.Params,
     callback: MailingList.GetMailingList.Callback
   ) {
+    var self = this;
     async.waterfall([
-      function(callback) {
+      function(next) {
+        if(params.userId) {
+          return self.user.__getProfile(connection, {id: params.userId}, next);
+        }
+        next(null, null);
+      },
+      function(profile: mkuser.UserProfile, callback) {
         var whereClause = "";
         if(params.inRegistration) {
           whereClause = "WHERE showAtRegistration = 1"
         }
         connection.query(
-          "SELECT idMailingList AS id, name, description, showAtRegistration \
+          "SELECT idMailingList AS id, name, description, showAtRegistration, permissions \
           FROM mailinglist " + whereClause,
           [],
           function(err, rows) {
@@ -138,10 +151,25 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
                   id: row.id,
                   name: row.name,
                   description: row.description,
-                  showAtRegistration: row.showAtRegistration
+                  showAtRegistration: row.showAtRegistration,
+                  permissions: self.deserializePermissions(row.permissions || "{}")
                 }
               }
             );
+            logger.debug("mailing lists before filter", mailingLists);
+            if(profile) {
+              profile.permissions = profile.permissions || {};
+            }
+            if(profile || params.requesterPermissions !== undefined) {
+              var permissionsToValidate = (profile && profile.permissions) || params.requesterPermissions;
+              mailingLists = mailingLists.filter(function(mailingList) {
+                return self.user.validatePermissions(
+                  permissionsToValidate,
+                  mailingList.permissions
+                );
+              });
+            }
+            logger.debug("Available mailing list after filter", mailingLists);
             callback(null, mailingLists);
           }
         )
@@ -167,13 +195,16 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
     params: MailingList.UpdateMailingList.Params,
     callback: MailingList.UpdateMailingList.Callback
   ) {
+    var self = this;
     async.waterfall([
       function(callback) {
         var mailingList: MailingList.MailingList = {
           name: params.name,
           description: params.description,
-          showAtRegistration: params.showAtRegistration
+          showAtRegistration: params.showAtRegistration,
+          permissions: self.serializePermissions(params.permissions || {})
         };
+        console.log(mailingList.permissions);
         connection.query(
           "UPDATE mailinglist SET ? WHERE idMailingList = ?",
           [mailingList, params.id],
@@ -343,13 +374,16 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
   ) {
     var self = this;
     var toEmails = [];
+    var userInMailingList;
+    var requiredPermissions;
     async.waterfall([
       function(next) {
         connection.query(
-          "SELECT email \
-            FROM mailinglist_users \
+          "SELECT email, idUser, perms, permissions\
+            FROM mailinglist_users mu\
             INNER JOIN user ON idUser=id\
-            WHERE idMailingList=?",
+            LEFT JOIN mailinglist m ON m.idMailingList=mu.idMailingList\
+            WHERE m.idMailingList=?",
           [params.id],
           function(err, res) {
             if(err) {
@@ -358,10 +392,36 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
             if(res.length === 0) {
               return next(new ApplicationError(null, {id: "empty"}));
             }
-            toEmails = _.pluck(res, "email")
+            requiredPermissions = self.deserializePermissions(res[0].permissions || {});
+            requiredPermissions = _.isEqual(requiredPermissions, {}) ?
+              null: requiredPermissions;
+            userInMailingList = _.map(res, function(user: any) {
+              return {
+                email: user.email,
+                idUser: user.idUser,
+                // Deserialize only if there are permissions on the mailing list
+                permissions: requiredPermissions && self.deserializePermissions(user.perms)
+              };
+            });
             next(null);
           }
         );
+      },
+      function(next) {
+        // FIXME:: Should go update database with invalid users
+        userInMailingList = _.filter(userInMailingList, function(user: any) {
+          return user.email &&
+            (
+              !requiredPermissions ||
+              self.user.validatePermissions(
+                user.permissions,
+                requiredPermissions
+              )
+            )
+          ;
+        });
+        toEmails = _.pluck(userInMailingList, "email");
+        next();
       },
       function(next) {
         self.communications.sendEmail({

@@ -5,7 +5,7 @@ declare module MailingList {
     id?: number
     name: string;
     description: string;
-    permissions?: any; // no support for now
+    permissions: any;
     showAtRegistration: boolean;
   }
 
@@ -28,6 +28,8 @@ declare module MailingList {
   module GetMailingList {
     export interface Params {
       inRegistration?: boolean;
+      requesterPermissions?: any;
+      userId?: number;
     }
     export interface Callback {
       (err?, result?: MailingList[]) : void;

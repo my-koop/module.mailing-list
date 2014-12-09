@@ -4,11 +4,13 @@ var BSCol   = require("react-bootstrap/Col");
 var BSRow   = require("react-bootstrap/Row");
 var BSGrid  = require("react-bootstrap/Grid");
 var BSPanel = require("react-bootstrap/Panel");
+var BSButton = require("react-bootstrap/Button");
 
 var MKPermissionMixin      = require("mykoop-user/components/PermissionMixin");
 var MKAlertTrigger         = require("mykoop-core/components/AlertTrigger");
 var MKIcon                 = require("mykoop-core/components/Icon");
 var MKMailingListEditPanel = require("./MailingListEditPanel");
+var MKUserPermissions      = require("mykoop-user/components/UserPermissions");
 
 var __ = require("language").__;
 var _ = require("lodash");
@@ -40,7 +42,7 @@ var MailingListAdminPage = React.createClass({
       })
       self.setState({
         mailingLists: res
-      })
+      });
     });
   },
 
@@ -50,7 +52,8 @@ var MailingListAdminPage = React.createClass({
       id: this.newMailingListId--,
       name: "",
       description: null,
-      showAtRegistration: 0
+      showAtRegistration: 0,
+      permissions: {}
     };
     this.state.mailingLists.push(newMailingList);
     this.setState({
@@ -58,7 +61,15 @@ var MailingListAdminPage = React.createClass({
     });
   },
 
-  mailingListDeleted: function(iMailingList) {
+  onMailingReset: function(iMailingList, newValues) {
+    var mailingLists = this.state.mailingLists;
+    mailingLists[iMailingList] = newValues;
+    this.setState({
+      mailingLists: mailingLists
+    });
+  },
+
+  onMailingListDeleted: function(iMailingList) {
     var mailingLists = this.state.mailingLists;
     // inline remove of an item
     mailingLists.splice(iMailingList, 1);
@@ -82,9 +93,61 @@ var MailingListAdminPage = React.createClass({
     }
   },
 
+  requestPermissionChanges: function(i) {
+    this.setState({
+      permissionEdition: {
+        requesterIndex: i
+      }
+    });
+  },
+
+  doneEditPermissions: function() {
+    this.setState({
+      permissionEdition: null
+    });
+  },
+
   render: function() {
     var self = this;
+    var permissionEdition = null;
+    if(this.state.permissionEdition) {
+      var permissionEdition = this.state.permissionEdition;
+      var i = permissionEdition.requesterIndex;
+      var mailingList = this.state.mailingLists[i];
+      var permissionLink = {
+        value: mailingList.permissions || {},
+        requestChange: function(newPermissions) {
+          var mailingLists = self.state.mailingLists;
+          mailingLists[i].permissions = newPermissions;
+          self.setState({
+            mailingLists: mailingLists
+          });
+        }
+      };
 
+      var permissionEdition = (
+        <BSCol>
+          <h1 className="pull-left">
+            {__("mailinglist::permissionChoiceFor")}: {mailingList.name}
+          </h1>
+          <span className="pull-right h1">
+            <BSButton
+              onClick={this.doneEditPermissions}
+              bsStyle="success"
+            >
+              <MKIcon glyph="check" fixedWidth />
+              <span className="hidden-xs">
+                {" " + __("done")}
+              </span>
+            </BSButton>
+          </span>
+          <span className="clearfix"/>
+          <MKUserPermissions
+            permissionLink={permissionLink}
+          />
+        </BSCol>
+      );
+    }
     var canCreateList = this.constructor.validateUserPermissions({
       mailinglists: {
         create: true
@@ -98,14 +161,18 @@ var MailingListAdminPage = React.createClass({
             idLink={self.makeValueLink(mailingList, "id")}
             nameLink={self.makeValueLink(mailingList, "name")}
             descriptionLink={self.makeValueLink(mailingList, "description")}
+            permissionsLink={self.makeValueLink(mailingList, "permissions")}
+            requestPermissionChanges={_.partial(self.requestPermissionChanges, i)}
             showAtRegistrationLink={self.makeValueLink(
               mailingList,
               "showAtRegistration",
               function(newValue) {
+                mailingList.permissions = {};
                 return +newValue;
               }
             )}
-            onDelete={_.bind(self.mailingListDeleted, self, i)}
+            onMailingReset={_.partial(self.onMailingReset, i)}
+            onDelete={_.partial(self.onMailingListDeleted, i)}
           />
         </BSCol>
       );
@@ -144,12 +211,17 @@ var MailingListAdminPage = React.createClass({
     }
 
     return (
-      <BSCol>
-        <h1>
-          {__("mailinglist::adminEditWelcome")}
-        </h1>
-        {mailingLists}
-      </BSCol>
+      <div>
+        {/*This need to be rendered hidden other it gets unmounted and initial
+          data is lost for mailing list to cancel/detect changes*/}
+        <BSCol className={permissionEdition && "hidden"}>
+          <h1>
+            {__("mailinglist::adminEditWelcome")}
+          </h1>
+          {mailingLists}
+        </BSCol>
+        {permissionEdition}
+      </div>
     );
   }
 });
