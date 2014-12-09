@@ -1,4 +1,5 @@
 {
   send: "Envoyer",
   done: "Terminer",
+  insuffisantPermissions: "Permissions insuffisantes",
 }

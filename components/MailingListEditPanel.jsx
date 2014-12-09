@@ -6,7 +6,6 @@ var BSRow   = require("react-bootstrap/Row");
 var BSCol   = require("react-bootstrap/Col");
 var BSInput = require("react-bootstrap/Input");
 
-var MKPermissionMixin   = require("mykoop-user/components/PermissionMixin");
 var MKListModButtons    = require("mykoop-core/components/ListModButtons");
 var MKAlert             = require("mykoop-core/components/Alert");
 var MKFeedbacki18nMixin = require("mykoop-core/components/Feedbacki18nMixin");
@@ -14,7 +13,10 @@ var MKAbstractModal     = require("mykoop-core/components/AbstractModal");
 var MKUserList          = require("mykoop-core/components/UserList");
 var MKUserListWrapper   = require("mykoop-core/components/UserListWrapper");
 
-var validatePermissions = MKPermissionMixin.statics.validateUserPermissions;
+var validatePermissions   = require("mykoop-user/lib/common/validatePermissions");
+var MKPermissionMixin   = require("mykoop-user/components/PermissionMixin");
+var validateUserPermissions = MKPermissionMixin.statics.validateUserPermissions;
+
 var __ = require("language").__;
 var _ = require("lodash");
 var actions = require("actions");
@@ -60,27 +62,27 @@ var MailingListEditPanel = React.createClass({
   canDeleteUsers: false,
   canDeleteList: false,
   componentWillMount: function () {
-    this.canEditList = validatePermissions({
+    this.canEditList = validateUserPermissions({
       mailinglists: {
         update: true
       }
     });
 
-    this.canViewUsers = this.canEditList && validatePermissions({
+    this.canViewUsers = this.canEditList && validateUserPermissions({
       mailinglists: {
         users: {
           view: true
         }
       }
     });
-    this.canAddUsers = this.canViewUsers && validatePermissions({
+    this.canAddUsers = this.canViewUsers && validateUserPermissions({
       mailinglists: {
         users: {
           add: true,
         }
       }
     });
-    this.canDeleteUsers = this.canViewUsers && validatePermissions({
+    this.canDeleteUsers = this.canViewUsers && validateUserPermissions({
       mailinglists: {
         users: {
           delete: true,
@@ -88,7 +90,7 @@ var MailingListEditPanel = React.createClass({
       }
     });
 
-    this.canDeleteList = validatePermissions({
+    this.canDeleteList = validateUserPermissions({
       mailinglists: {
         delete: true
       }
@@ -222,11 +224,16 @@ var MailingListEditPanel = React.createClass({
       }
     }, callback);
   },
+  checkCanAddUser: function(user, callback) {
+    var permissions = this.getField("permissions");
+    if(!validatePermissions(user.permissions, permissions)) {
+      return callback({key: "insuffisantPermissions"});
+    }
+    callback();
+  },
 
   render: function() {
     var self = this;
-
-
     var showAtRegistration = !!this.props.showAtRegistrationLink.value;
     var hasChanges = this.hasChanges();
     var isNew = this.isNewMailingList();
@@ -274,6 +281,7 @@ var MailingListEditPanel = React.createClass({
         noAdd={!this.canAddUsers}
         noDelete={!this.canDeleteUsers}
         retrieveUsers={this.retrieveUsers}
+        checkCanAddUser={this.checkCanAddUser}
         onAddUser={this.onAddUser}
         onDeleteUser={this.onDeleteUser}
       />
