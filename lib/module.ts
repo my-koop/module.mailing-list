@@ -434,7 +434,7 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
             }
 
             requiredPermissions = _.isEqual(mailingList.permissions, {}) ?
-              null: requiredPermissions;
+              null: mailingList.permissions;
             userInMailingList = _.map(res, function(user: any) {
               return {
                 email: user.email,
