@@ -29,5 +29,17 @@
         tooLong: "Name must be at most __variable__ characters long"
       }
     }
-  }
+  },
+
+  navbar: {
+    quickActions: {
+      sendEmail: "Send an email"
+    }
+  },
+
+  sidebar: {
+    mailinglists: "$t(mailinglist::mailingLists)",
+    sendEmail: "$t(mailinglist::navbar.quickActions.sendEmail)",
+    manageLists: "Manage lists",
+  },
 }
