@@ -8,7 +8,7 @@
   mailingListTab: "Listes de diffusion",
   mailingLists: "Listes de diffusion",
 
-  showAtRegistrationTooltip: "Afficher cette liste de diffusion dans le formulaire d'inscription des nouveaux utilisateurs. Retire toutes les privilèges de cette liste de diffusion.",
+  showAtRegistrationTooltip: "Afficher cette liste de diffusion dans le formulaire d'inscription des nouveaux utilisateurs. Retire tous les privilèges de cette liste de diffusion.",
   registerError: "Erreur survenue pendant l'inscription aux listes de diffusion",
 
   config: "Configurations",
