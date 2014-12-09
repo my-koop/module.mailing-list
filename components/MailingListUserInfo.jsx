@@ -188,8 +188,9 @@ var MailingListUserInfo = React.createClass({
 
   render: function() {
     var self = this;
+    var isCurrent = this.props.current;
 
-    var canAddList = this.constructor.validateUserPermissions({
+    var canAddList = isCurrent || this.constructor.validateUserPermissions({
       mailinglists: {
         users: {
           add: true
@@ -197,7 +198,7 @@ var MailingListUserInfo = React.createClass({
       }
     });
 
-    var canRemoveList = this.constructor.validateUserPermissions({
+    var canRemoveList = isCurrent || this.constructor.validateUserPermissions({
       mailinglists: {
         users: {
           remove: true
