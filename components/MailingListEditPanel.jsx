@@ -336,7 +336,7 @@ var MailingListEditPanel = React.createClass({
                 buttons={registrationButton}
               />
             </BSCol>
-            <BSCol xs={8} className="mailingList-name-form">
+            <BSCol sm={8} className="mailingList-name-form">
               {this.canEditList ?
                 <BSInput
                   type="text"
@@ -346,7 +346,6 @@ var MailingListEditPanel = React.createClass({
                 <strong>{this.props.nameLink.value}</strong>
               }
             </BSCol>
-
           </BSRow>
           <BSRow>
             <BSCol md={12}>
