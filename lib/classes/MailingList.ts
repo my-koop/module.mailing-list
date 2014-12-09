@@ -1,4 +1,4 @@
-class MailingList implements MailingList.MailingList {
+class MailingList implements mkmailinglist.MailingList {
   static queryMailingListInfo = "SELECT\
     idMailingList AS id,\
     name,\
@@ -16,7 +16,7 @@ class MailingList implements MailingList.MailingList {
     this.id = dbResult.id;
     this.name = dbResult.name;
     this.description = dbResult.description;
-    this.permissions = module.deserializePermissions(dbResult.permissions);
+    this.permissions = module.deserializePermissions(dbResult.permissions || "{}");
     this.showAtRegistration = dbResult.showAtRegistration;
   }
 }

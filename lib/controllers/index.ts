@@ -25,7 +25,7 @@ export function attachControllers(
       }
     },
     binder.makeSimpleController(mailingList.addMailingList, function (req: Express.Request) {
-      var params: MailingList.AddMailingList.Params = {
+      var params: mkmailinglist.AddMailingList.Params = {
         showAtRegistration: !!req.param("showAtRegistration", false),
         name: req.param("name"),
         description: req.param("description"),
@@ -47,7 +47,7 @@ export function attachControllers(
       }
     },
     binder.makeSimpleController(mailingList.updateMailingList, function (req: Express.Request) {
-      var params: MailingList.UpdateMailingList.Params = {
+      var params: mkmailinglist.UpdateMailingList.Params = {
         id: parseInt(req.param("id")),
         name: req.param("name"),
         description: req.param("description"),
@@ -70,7 +70,7 @@ export function attachControllers(
       }
     },
     binder.makeSimpleController(mailingList.deleteMailingList, function (req: Express.Request) {
-      var params: MailingList.DeleteMailingList.Params = {
+      var params: mkmailinglist.DeleteMailingList.Params = {
         id: parseInt(req.param("id"))
       };
       return params;
@@ -125,11 +125,34 @@ export function attachControllers(
   // Get mailing for registration only
   binder.attach(
     {endPoint: endpoints.mailinglist.registration},
-    binder.makeSimpleController<MailingList.GetMailingLists.Params>(
+    binder.makeSimpleController<mkmailinglist.GetMailingLists.Params>(
       mailingList.getMailingLists,
       function() {
         return {
           inRegistration: true
+        };
+      }
+    )
+  );
+
+  // Get mailing for registration only
+  binder.attach(
+    {
+      endPoint: endpoints.mailinglist.listUsers,
+      permissions: {
+        mailinglists: {
+          read: true,
+          users: {
+            view: true,
+          }
+        }
+      }
+    },
+    binder.makeSimpleController<mkmailinglist.GetMailingListUsers.Params>(
+      mailingList.getMailingListUsers,
+      function(req) {
+        return {
+          id: parseInt(req.param("id")) || 0
         };
       }
     )
@@ -149,7 +172,7 @@ export function attachControllers(
       customPermissionDenied: validateCurrentUser
     },
     binder.makeSimpleController(mailingList.registerToMailingLists, function (req: Express.Request) {
-      var params: MailingList.RegisterToMailingLists.Params = {
+      var params: mkmailinglist.RegisterToMailingLists.Params = {
         idMailingLists: _.map(req.param("idMailingLists"), function(id: string) {
           return parseInt(id);
         }),
@@ -173,7 +196,7 @@ export function attachControllers(
       customPermissionDenied: validateCurrentUser
     },
     binder.makeSimpleController(mailingList.unregisterToMailingLists, function (req: Express.Request) {
-      var params: MailingList.RegisterToMailingLists.Params = {
+      var params: mkmailinglist.RegisterToMailingLists.Params = {
         idMailingLists: _.map(req.param("idMailingLists"), function(id: string) {
           return parseInt(id);
         }),
@@ -198,7 +221,7 @@ export function attachControllers(
       customPermissionDenied: validateCurrentUser
     },
     binder.makeSimpleController(mailingList.getUserMailingLists, function (req: Express.Request) {
-      var params: MailingList.GetUserMailingLists.Params = {
+      var params: mkmailinglist.GetUserMailingLists.Params = {
         id: parseInt(req.param("id"))
       };
       return params;
@@ -215,7 +238,7 @@ export function attachControllers(
         }
       }
     },
-    binder.makeSimpleController<MailingList.SendEmail.Params>(
+    binder.makeSimpleController<mkmailinglist.SendEmail.Params>(
       mailingList.sendEmail,
       function(req) {
         return {

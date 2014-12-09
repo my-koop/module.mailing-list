@@ -13,10 +13,9 @@
 
   config: "Configurations",
   globalEmail: "Courriel principal",
-
-  config: "Configurations",
-  globalEmail: "Courriel principal",
   subject: "Sujet",
+  editUsersInMailingList: "Modifier les utilisateurs dans cette liste de diffusion",
+  userList: "Liste d'utilisateur",
 
   permissionChoiceFor: "Permissions pour",
   editPermissionsTooltip: "Modifier les permissions pour cette liste de diffusion",

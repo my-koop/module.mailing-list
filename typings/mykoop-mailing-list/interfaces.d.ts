@@ -29,8 +29,9 @@ declare module mkmailinglist {
     export interface Params {
       id: number;
     }
+    export interface Result extends MailingList {}
     export interface Callback {
-      (err?, result?: MailingList) : void;
+      (err?, result?: Result) : void;
     }
   }
 
@@ -40,8 +41,9 @@ declare module mkmailinglist {
       requesterPermissions?: any;
       userId?: number;
     }
+    export interface Result extends Array<MailingList> {}
     export interface Callback {
-      (err?, result?: MailingList[]) : void;
+      (err?, result?: Result) : void;
     }
   }
 
@@ -103,7 +105,6 @@ declare module mkmailinglist {
         firstName: string;
         lastName: string;
         email: string;
-        permissions: any;
       }[];
     }
     export interface Callback {
