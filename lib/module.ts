@@ -484,12 +484,15 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
     var self = this;
     var toEmails;
     var requiredPermissions;
+    logger.verbose("Sending Email");
     async.waterfall([
       function(next) {
-        self.__getMailingListUsers(connection, params, callback);
+        self.__getMailingListUsers(connection, params, next);
       },
       function(res: mkmailinglist.GetMailingListUsers.Result, next) {
+        logger.verbose(res);
         toEmails = _.pluck(res.users, "email");
+        logger.verbose(toEmails);
         next();
       },
       function(next) {
