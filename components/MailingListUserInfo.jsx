@@ -8,6 +8,7 @@ var BSInput         = require("react-bootstrap/Input");
 var BSListGroup     = require("react-bootstrap/ListGroup");
 var BSListGroupItem = require("react-bootstrap/ListGroupItem");
 
+var MKPermissionMixin   = require("mykoop-user/components/PermissionMixin");
 var MKFeedbacki18nMixin = require("mykoop-core/components/Feedbacki18nMixin");
 var MKAlertTrigger = require("mykoop-core/components/AlertTrigger");
 
@@ -16,10 +17,11 @@ var _ = require("lodash");
 var actions = require("actions");
 
 var MailingListUserInfo = React.createClass({
-  mixins: [MKFeedbacki18nMixin],
+  mixins: [MKPermissionMixin, MKFeedbacki18nMixin],
 
   propTypes: {
-    userId: React.PropTypes.number.isRequired
+    userId: React.PropTypes.number.isRequired,
+    current: React.PropTypes.bool
   },
 
   getInitialState: function() {
@@ -50,7 +52,7 @@ var MailingListUserInfo = React.createClass({
       actions.user.mailinglist.list({
         i18nErrors: {},
         data: {
-          id: this.props.userId
+          id: userId
         }
       }, function(err, res) {
         if(err) {
@@ -64,8 +66,11 @@ var MailingListUserInfo = React.createClass({
         });
       });
 
-      actions.mailinglist.list({
-        i18nErrors: {}
+      actions.mailinglist.listAvailable({
+        i18nErrors: {},
+        data: {
+          userId: self.props.current ? undefined : self.props.userId
+        }
       }, function(err, res) {
         if(err) {
           return self.setFeedback(err.i18n, "danger");
@@ -183,10 +188,29 @@ var MailingListUserInfo = React.createClass({
 
   render: function() {
     var self = this;
+    var isCurrent = this.props.current;
+
+    var canAddList = isCurrent || this.constructor.validateUserPermissions({
+      mailinglists: {
+        users: {
+          add: true
+        }
+      }
+    });
+
+    var canRemoveList = isCurrent || this.constructor.validateUserPermissions({
+      mailinglists: {
+        users: {
+          remove: true
+        }
+      }
+    });
+
+    var canEditList = canAddList || canRemoveList;
 
     var mailingListsContent = null;
     if(this.state.mailingLists) {
-      mailingListsContent = _.map(this.state.mailingLists, function(mailingList) {
+      mailingListsContent = _.map(this.state.mailingLists, function(mailingList, i) {
         var valueLink = {
           value: mailingList.registered,
           requestChange: function(newRegistered) {
@@ -197,11 +221,15 @@ var MailingListUserInfo = React.createClass({
           }
         }
         var label = <strong>{mailingList.name}</strong>;
+        var registered = self.state.registeredMailingLists[mailingList.id];
+        var disabled = registered && !canRemoveList ||
+                       !registered && !canAddList;
         var input = (
           <BSInput
             type="checkbox"
             checkedLink={valueLink}
             label={label}
+            disabled={disabled}
           />
         );
         return (
@@ -220,13 +248,16 @@ var MailingListUserInfo = React.createClass({
         <BSListGroup>
           {mailingListsContent}
         </BSListGroup>
-        <BSButton
-          bsStyle="primary"
-          onClick={this.saveChanges}
-          disabled={this.state.busy || !this.hasChanges()}
-        >
-          {__("save")}
-        </BSButton>
+        {canEditList ?
+          <BSButton
+            bsStyle="success"
+            className="pull-right"
+            onClick={this.saveChanges}
+            disabled={this.state.busy || !this.hasChanges()}
+          >
+            {__("save")}
+          </BSButton>
+        : null}
       </div>
     );
   }

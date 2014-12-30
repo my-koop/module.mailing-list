@@ -110,16 +110,6 @@ var SendEmailPage = React.createClass({
                 {mailingListOptions}
               </BSInput>
             </BSCol>
-            <BSCol xs={4}>
-                <MKConfirmationTrigger
-                  message={__("areYouSure")}
-                  onYes={this.sendEmail}
-                >
-                  <BSButton bsStyle="primary">
-                    {__("send")}
-                  </BSButton>
-                </MKConfirmationTrigger>
-            </BSCol>
           </BSRow>
           <BSRow>
             <BSCol xs={12}>
@@ -129,6 +119,18 @@ var SendEmailPage = React.createClass({
                 valueLink={subjectLink}
               />
               <MKRichTextArea className="col-xs-12" ref="editor"/>
+            </BSCol>
+          </BSRow>
+          <BSRow className="top-margin-10">
+            <BSCol xs={12}>
+                <MKConfirmationTrigger
+                  message={__("areYouSure")}
+                  onYes={this.sendEmail}
+                >
+                  <BSButton className="pull-right" bsStyle="success">
+                    {__("send")}
+                  </BSButton>
+                </MKConfirmationTrigger>
             </BSCol>
           </BSRow>
         </BSPanel>

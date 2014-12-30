@@ -2,6 +2,8 @@ import utils = require("mykoop-utils");
 import async = require("async");
 import _ = require("lodash");
 import controllerList = require("./controllers/index");
+import MailingList = require("./classes/MailingList");
+
 var logger = utils.getLogger(module);
 var ApplicationError = utils.errors.ApplicationError;
 var DatabaseError = utils.errors.DatabaseError;
@@ -10,17 +12,21 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
   db: mkdatabase.Module;
   user: mkuser.Module;
   communications: mkcommunications.Module;
-
+  deserializePermissions: (permissions: string) => any;
+  serializePermissions: (permissions: any) => string;
   init() {
     this.db = <mkdatabase.Module>this.getModuleManager().get("database");
     this.user = <mkuser.Module>this.getModuleManager().get("user");
     this.communications = <mkcommunications.Module>this.getModuleManager().get("communications");
     controllerList.attachControllers(new utils.ModuleControllersBinder(this));
+
+    this.deserializePermissions = (<any>this.user.constructor).deserializePermissions;
+    this.serializePermissions = (<any>this.user.constructor).serializePermissions;
   }
 
   addMailingList(
-    params: MailingList.AddMailingList.Params,
-    callback: MailingList.AddMailingList.Callback
+    params: mkmailinglist.AddMailingList.Params,
+    callback: mkmailinglist.AddMailingList.Callback
   ) {
     this.callWithConnection(
       this.__addMailingList,
@@ -31,15 +37,17 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
 
   __addMailingList(
     connection: mysql.IConnection,
-    params: MailingList.AddMailingList.Params,
-    callback: MailingList.AddMailingList.Callback
+    params: mkmailinglist.AddMailingList.Params,
+    callback: mkmailinglist.AddMailingList.Callback
   ) {
+    var self = this;
     async.waterfall([
       function(callback) {
-        var mailingList: MailingList.MailingList = {
+        var mailingList: mkmailinglist.MailingList = {
           name: params.name,
           description: params.description,
-          showAtRegistration: params.showAtRegistration
+          showAtRegistration: params.showAtRegistration,
+          permissions: self.serializePermissions(params.permissions || {})
         };
         connection.query(
           "INSERT INTO mailinglist SET ?",
@@ -66,8 +74,8 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
   }
 
   deleteMailingList(
-    params: MailingList.DeleteMailingList.Params,
-    callback: MailingList.DeleteMailingList.Callback
+    params: mkmailinglist.DeleteMailingList.Params,
+    callback: mkmailinglist.DeleteMailingList.Callback
   ) {
     this.callWithConnection(
       this.__deleteMailingList,
@@ -78,8 +86,8 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
 
   __deleteMailingList(
     connection: mysql.IConnection,
-    params: MailingList.DeleteMailingList.Params,
-    callback: MailingList.DeleteMailingList.Callback
+    params: mkmailinglist.DeleteMailingList.Params,
+    callback: mkmailinglist.DeleteMailingList.Callback
   ) {
     async.waterfall([
       function(callback) {
@@ -102,9 +110,40 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
     ], callback);
   }
 
+  getMailingList(
+    params: mkmailinglist.GetMailingList.Params,
+    callback: mkmailinglist.GetMailingList.Callback
+  ) {
+    this.callWithConnection(
+      this.__getMailingList,
+      params,
+      callback
+    );
+  }
+  __getMailingList(
+    connection: mysql.IConnection,
+    params: mkmailinglist.GetMailingList.Params,
+    callback: mkmailinglist.GetMailingList.Callback
+  ) {
+    var self = this;
+    connection.query(
+      MailingList.queryMailingListInfo + " WHERE idMailingList=?",
+      [params.id],
+      function(err, res: any[]) {
+        if(err) {
+          return callback(new DatabaseError(err));
+        }
+        if(res.length !== 1) {
+          return callback(new ResourceNotFoundError(null, {id: "notFound"}));
+        }
+        callback(null, new MailingList(res[0], self));
+      }
+    );
+  }
+
   getMailingLists(
-    params: MailingList.GetMailingList.Params,
-    callback: MailingList.GetMailingList.Callback
+    params: mkmailinglist.GetMailingLists.Params,
+    callback: mkmailinglist.GetMailingLists.Callback
   ) {
     this.callWithConnection(
       this.__getMailingLists,
@@ -115,33 +154,48 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
 
   __getMailingLists(
     connection: mysql.IConnection,
-    params: MailingList.GetMailingList.Params,
-    callback: MailingList.GetMailingList.Callback
+    params: mkmailinglist.GetMailingLists.Params,
+    callback: mkmailinglist.GetMailingLists.Callback
   ) {
+    var self = this;
     async.waterfall([
-      function(callback) {
+      function(next) {
+        if(params.userId) {
+          return self.user.__getProfile(connection, {id: params.userId}, next);
+        }
+        next(null, null);
+      },
+      function(profile: mkuser.UserProfile, callback) {
         var whereClause = "";
         if(params.inRegistration) {
           whereClause = "WHERE showAtRegistration = 1"
         }
         connection.query(
-          "SELECT idMailingList AS id, name, description, showAtRegistration \
-          FROM mailinglist " + whereClause,
+          MailingList.queryMailingListInfo + whereClause,
           [],
           function(err, rows) {
             if(err) {
               return callback(new DatabaseError(err));
             }
-            var mailingLists: MailingList.MailingList[] = _.map(rows,
+            var mailingLists: mkmailinglist.MailingList[] = _.map(rows,
               function(row: any) {
-                return {
-                  id: row.id,
-                  name: row.name,
-                  description: row.description,
-                  showAtRegistration: row.showAtRegistration
-                }
+                return new MailingList(row, self);
               }
             );
+            logger.debug("mailing lists before filter", mailingLists);
+            if(profile) {
+              profile.permissions = profile.permissions || {};
+            }
+            if(profile || params.requesterPermissions !== undefined) {
+              var permissionsToValidate = (profile && profile.permissions) || params.requesterPermissions;
+              mailingLists = mailingLists.filter(function(mailingList) {
+                return self.user.validatePermissions(
+                  permissionsToValidate,
+                  mailingList.permissions
+                );
+              });
+            }
+            logger.debug("Available mailing list after filter", mailingLists);
             callback(null, mailingLists);
           }
         )
@@ -152,8 +206,8 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
   }
 
   updateMailingList(
-    params: MailingList.UpdateMailingList.Params,
-    callback: MailingList.UpdateMailingList.Callback
+    params: mkmailinglist.UpdateMailingList.Params,
+    callback: mkmailinglist.UpdateMailingList.Callback
   ) {
     this.callWithConnection(
       this.__updateMailingList,
@@ -164,16 +218,19 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
 
   __updateMailingList(
     connection: mysql.IConnection,
-    params: MailingList.UpdateMailingList.Params,
-    callback: MailingList.UpdateMailingList.Callback
+    params: mkmailinglist.UpdateMailingList.Params,
+    callback: mkmailinglist.UpdateMailingList.Callback
   ) {
+    var self = this;
     async.waterfall([
       function(callback) {
-        var mailingList: MailingList.MailingList = {
+        var mailingList: mkmailinglist.MailingList = {
           name: params.name,
           description: params.description,
-          showAtRegistration: params.showAtRegistration
+          showAtRegistration: params.showAtRegistration,
+          permissions: self.serializePermissions(params.permissions || {})
         };
+        console.log(mailingList.permissions);
         connection.query(
           "UPDATE mailinglist SET ? WHERE idMailingList = ?",
           [mailingList, params.id],
@@ -204,8 +261,8 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
   }
 
   registerToMailingLists(
-    params: MailingList.RegisterToMailingLists.Params,
-    callback: MailingList.RegisterToMailingLists.Callback
+    params: mkmailinglist.RegisterToMailingLists.Params,
+    callback: mkmailinglist.RegisterToMailingLists.Callback
   ) {
     this.callWithConnection(
       this.__registerToMailingLists,
@@ -216,8 +273,8 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
 
   __registerToMailingLists(
     connection: mysql.IConnection,
-    params: MailingList.RegisterToMailingLists.Params,
-    callback: MailingList.RegisterToMailingLists.Callback
+    params: mkmailinglist.RegisterToMailingLists.Params,
+    callback: mkmailinglist.RegisterToMailingLists.Callback
   ) {
     var self = this;
     logger.debug("User registering to mailing lists", params);
@@ -258,8 +315,8 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
   }
 
   unregisterToMailingLists(
-    params: MailingList.RegisterToMailingLists.Params,
-    callback: MailingList.RegisterToMailingLists.Callback
+    params: mkmailinglist.RegisterToMailingLists.Params,
+    callback: mkmailinglist.RegisterToMailingLists.Callback
   ) {
     this.callWithConnection(
       this.__unregisterToMailingLists,
@@ -270,8 +327,8 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
 
   __unregisterToMailingLists(
     connection: mysql.IConnection,
-    params: MailingList.RegisterToMailingLists.Params,
-    callback: MailingList.RegisterToMailingLists.Callback
+    params: mkmailinglist.RegisterToMailingLists.Params,
+    callback: mkmailinglist.RegisterToMailingLists.Callback
   ) {
     var self = this;
     logger.debug("User unregistering to mailing lists", params);
@@ -297,8 +354,8 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
   }
 
   getUserMailingLists (
-    params: MailingList.GetUserMailingLists.Params,
-    callback: MailingList.GetUserMailingLists.Callback
+    params: mkmailinglist.GetUserMailingLists.Params,
+    callback: mkmailinglist.GetUserMailingLists.Callback
   ) {
     this.callWithConnection(
       this.__getUserMailingLists,
@@ -309,8 +366,8 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
 
   __getUserMailingLists (
     connection: mysql.IConnection,
-    params: MailingList.GetUserMailingLists.Params,
-    callback: MailingList.GetUserMailingLists.Callback
+    params: mkmailinglist.GetUserMailingLists.Params,
+    callback: mkmailinglist.GetUserMailingLists.Callback
   ) {
     connection.query(
       " SELECT idMailingList\
@@ -330,130 +387,119 @@ class Module extends utils.BaseModule implements mkmailinglist.Module {
     )
   }
 
-  getConfigurations(
-    params: MailingList.GetConfigurations.Params,
-    callback: MailingList.GetConfigurations.Callback
+  getMailingListUsers(
+    params: mkmailinglist.GetMailingListUsers.Params,
+    callback: mkmailinglist.GetMailingListUsers.Callback
   ) {
-    this.callWithConnection(this.__getConfigurations, params, callback);
-  }
-  __getConfigurations(
-    connection: mysql.IConnection,
-    params: MailingList.GetConfigurations.Params,
-    callback: MailingList.GetConfigurations.Callback
-  ) {
-    connection.query(
-      "SELECT value FROM configuration WHERE `key` = ?",
-      ["mailingList"],
-      function(err, res) {
-        callback(
-          err && new DatabaseError(err),
-          (res && res.length === 1 && JSON.parse(res[0].value)) ||
-          null
-        );
-      }
-    );
+    this.callWithConnection(this.__getMailingListUsers, params, callback);
   }
 
-  setConfigurations(
-    params: MailingList.SetConfigurations.Params,
-    callback: MailingList.SetConfigurations.Callback
-  ) {
-    this.callWithConnection(this.__setConfigurations, params, callback);
-  }
-  __setConfigurations(
+  __getMailingListUsers(
     connection: mysql.IConnection,
-    params: MailingList.SetConfigurations.Params,
-    callback: MailingList.SetConfigurations.Callback
+    params: mkmailinglist.GetMailingListUsers.Params,
+    callback: mkmailinglist.GetMailingListUsers.Callback
   ) {
     var self = this;
-    logger.debug("Set configurations");
+    var userInMailingList: {
+      id: number;
+      email: string;
+      firstName: string;
+      lastName: string;
+      permissions?: any;
+    }[];
+
+    var requiredPermissions;
     async.waterfall([
       function(next) {
-        self.__getConfigurations(connection, {}, next);
+        self.__getMailingList(connection, params, next);
       },
-      function(configs, next) {
-        logger.debug("Get current configurations", configs);
-        var newConfigs: MailingList.MailingListConfiguration = {
-          globalSender: params.globalSender
-        };
-        var newConfigsString = JSON.stringify(newConfigs);
-        // First time setting the config
-        if(!configs) {
-          logger.debug("No configs, attempt to insert", newConfigsString);
-          return connection.query(
-            "INSERT INTO configuration SET `key` = ?, value = ?",
-            ["mailingList", newConfigsString],
-            function(err) {
-              if(err) {
-                logger.debug(err);
-              }
-              // Ignore this error, the databse might be corrupted
-              // try to update the config if there's an error
-              next(null, newConfigsString, !!err);
-            }
-          );
-        }
-        next(null, newConfigsString, true);
-      }, function(newConfigsString, tryUpdate, next) {
-        if(tryUpdate) {
-          logger.debug("Update configurations", newConfigsString);
-          return connection.query(
-            "UPDATE configuration SET value = ? WHERE `key` = ?",
-            [newConfigsString, "mailingList"],
-            function(err) {
-              next(err && new DatabaseError(err));
-            }
-          );
-        }
-        // we inserted a new value and it didn't return an error
-        next();
-      }
-    ], callback);
-  }
-
-  sendEmail(
-    params: MailingList.SendEmail.Params,
-    callback: MailingList.SendEmail.Callback
-  ) {
-    this.callWithConnection(this.__sendEmail, params, callback);
-  }
-  __sendEmail(
-    connection: mysql.IConnection,
-    params: MailingList.SendEmail.Params,
-    callback: MailingList.SendEmail.Callback
-  ) {
-    var self = this;
-    var toEmails = [];
-    async.waterfall([
-      function(next) {
+      function(mailingList: mkmailinglist.GetMailingList.Result, next) {
         connection.query(
-          "SELECT email \
-            FROM mailinglist_users \
-            INNER JOIN user ON idUser=id\
-            WHERE idMailingList=?",
+          "SELECT \
+            email, \
+            idUser, \
+            firstname AS firstName,\
+            lastname AS lastName,\
+            perms \
+          FROM mailinglist_users\
+          INNER JOIN user ON idUser=id\
+          WHERE idMailingList=?",
           [params.id],
           function(err, res) {
             if(err) {
               return next(new DatabaseError(err));
             }
             if(res.length === 0) {
-              return next(new ApplicationError(null, {id: "empty"}));
+              return next(null, []);
             }
-            toEmails = _.pluck(res, "email")
+
+            requiredPermissions = _.isEqual(mailingList.permissions, {}) ?
+              null: mailingList.permissions;
+            userInMailingList = _.map(res, function(user: any) {
+              return {
+                email: user.email,
+                id: user.idUser,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                // Deserialize only if there are permissions on the mailing list
+                permissions: requiredPermissions && self.deserializePermissions(user.perms)
+              };
+            });
             next(null);
           }
         );
       },
       function(next) {
-        self.__getConfigurations(connection, {}, <any>next);
+        userInMailingList = _.filter(userInMailingList, function(user: any) {
+          return user.email &&
+            (
+              !requiredPermissions ||
+              self.user.validatePermissions(
+                user.permissions,
+                requiredPermissions
+              )
+            )
+          ;
+        });
+        _.each(userInMailingList, function(user) {
+          // don't leak permissions through this route
+          delete user.permissions;
+        });
+        next(null, {users: userInMailingList});
+      }
+    ], <any>callback);
+  }
+
+  sendEmail(
+    params: mkmailinglist.SendEmail.Params,
+    callback: mkmailinglist.SendEmail.Callback
+  ) {
+    this.callWithConnection(this.__sendEmail, params, callback);
+  }
+  __sendEmail(
+    connection: mysql.IConnection,
+    params: mkmailinglist.SendEmail.Params,
+    callback: mkmailinglist.SendEmail.Callback
+  ) {
+    var self = this;
+    var toEmails;
+    var requiredPermissions;
+    logger.verbose("Sending Email");
+    async.waterfall([
+      function(next) {
+        self.__getMailingListUsers(connection, params, next);
       },
-      function(configs: MailingList.GetConfigurations.CallbackResult, next) {
-        var fromEmail = configs && configs.globalSender || undefined;
+      function(res: mkmailinglist.GetMailingListUsers.Result, next) {
+        logger.verbose(res);
+        toEmails = _.pluck(res.users, "email");
+        logger.verbose(toEmails);
+        next();
+      },
+      function(next) {
         self.communications.sendEmail({
-          from: fromEmail,
           message: params.content,
           subject: params.subject,
-          to: toEmails
+          bcc: toEmails
         }, next);
       }
     ], callback);

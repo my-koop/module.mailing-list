@@ -1,3 +1,5 @@
 {
   send: "Send",
+  done: "Done",
+  insuffisantPermissions: "Insuffisant permissions",
 }

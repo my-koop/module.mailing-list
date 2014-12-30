@@ -5,15 +5,27 @@ function addRoutes(builder) {
     });
     builder.addFrontendRoute({
         idPath: ["dashboard", "mailinglist", "edit"],
+        i18nKey: "mailinglist::sidebar.manageLists",
         component: "MailingListAdminPage",
         name: "editMailingList",
-        path: "edit"
+        path: "edit",
+        permissions: {
+            mailinglists: {
+                read: true
+            }
+        }
     });
     builder.addFrontendRoute({
         idPath: ["dashboard", "mailinglist", "send"],
+        i18nKey: "mailinglist::navbar.quickActions.sendEmail",
         component: "SendEmailPage",
         name: "sendEmail",
-        path: "send"
+        path: "send",
+        permissions: {
+            mailinglists: {
+                send: true
+            }
+        }
     });
 }
 exports.addRoutes = addRoutes;

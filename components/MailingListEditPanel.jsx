@@ -9,6 +9,13 @@ var BSInput = require("react-bootstrap/Input");
 var MKListModButtons    = require("mykoop-core/components/ListModButtons");
 var MKAlert             = require("mykoop-core/components/Alert");
 var MKFeedbacki18nMixin = require("mykoop-core/components/Feedbacki18nMixin");
+var MKAbstractModal     = require("mykoop-core/components/AbstractModal");
+var MKUserList          = require("mykoop-core/components/UserList");
+var MKUserListWrapper   = require("mykoop-core/components/UserListWrapper");
+
+var validatePermissions   = require("mykoop-user/lib/common/validatePermissions");
+var MKPermissionMixin   = require("mykoop-user/components/PermissionMixin");
+var validateUserPermissions = MKPermissionMixin.statics.validateUserPermissions;
 
 var __ = require("language").__;
 var _ = require("lodash");
@@ -20,7 +27,11 @@ var valueLinkProps = React.PropTypes.shape({
 }).isRequired;
 
 var MailingListEditPanel = React.createClass({
-  mixins: [React.addons.LinkedStateMixin, MKFeedbacki18nMixin],
+  mixins: [
+    MKPermissionMixin,
+    React.addons.LinkedStateMixin,
+    MKFeedbacki18nMixin
+  ],
 
   propTypes: {
     idLink: valueLinkProps,
@@ -28,11 +39,62 @@ var MailingListEditPanel = React.createClass({
     descriptionLink: valueLinkProps,
     showAtRegistrationLink: valueLinkProps,
     onDelete: React.PropTypes.func,
-    onSave: React.PropTypes.func
+    onSave: React.PropTypes.func,
+    permissionsLink: valueLinkProps,
+    onMailingReset: React.PropTypes.func,
+    requestPermissionChanges: React.PropTypes.func
   },
 
-  getInitialState: function() {
-    return this.getValues();
+  getInitialState: function(props) {
+    props = props || this.props;
+    return {
+      id: props.idLink.value,
+      name: props.nameLink.value,
+      description: props.descriptionLink.value,
+      showAtRegistration: props.showAtRegistrationLink.value,
+      permissions: _.clone(props.permissionsLink.value)
+    };
+  },
+
+  canEditList: false,
+  canViewUsers: false,
+  canAddUsers: false,
+  canDeleteUsers: false,
+  canDeleteList: false,
+  componentWillMount: function () {
+    this.canEditList = validateUserPermissions({
+      mailinglists: {
+        update: true
+      }
+    });
+
+    this.canViewUsers = this.canEditList && validateUserPermissions({
+      mailinglists: {
+        users: {
+          view: true
+        }
+      }
+    });
+    this.canAddUsers = this.canViewUsers && validateUserPermissions({
+      mailinglists: {
+        users: {
+          add: true,
+        }
+      }
+    });
+    this.canDeleteUsers = this.canViewUsers && validateUserPermissions({
+      mailinglists: {
+        users: {
+          delete: true,
+        }
+      }
+    });
+
+    this.canDeleteList = validateUserPermissions({
+      mailinglists: {
+        delete: true
+      }
+    });
   },
 
   componentWillReceiveProps: function (nextProps) {
@@ -41,9 +103,7 @@ var MailingListEditPanel = React.createClass({
     if(
         nextProps.idLink.value !== this.props.idLink.value
     ) {
-      // FIXME:: do not modify this.props directly
-      this.props = nextProps;
-      this.setState(this.getValues());
+      this.setState(this.getInitialState(nextProps));
     }
   },
 
@@ -52,7 +112,8 @@ var MailingListEditPanel = React.createClass({
       id: this.getField("id"),
       name: this.getField("name"),
       description: this.getField("description"),
-      showAtRegistration: this.getField("showAtRegistration")
+      showAtRegistration: this.getField("showAtRegistration"),
+      permissions: this.getField("permissions")
     };
   },
 
@@ -99,6 +160,16 @@ var MailingListEditPanel = React.createClass({
     });
   },
 
+  resetMailingList: function() {
+    var newValues = {
+      name: this.state.name,
+      description: this.state.description,
+      showAtRegistration: this.state.showAtRegistration,
+      permissions: _.clone(this.state.permissions)
+    }
+    this.props.onMailingReset && this.props.onMailingReset(newValues);
+  },
+
   deleteMailingList: function() {
     var self = this;
     var isNew = this.isNewMailingList();
@@ -122,41 +193,121 @@ var MailingListEditPanel = React.createClass({
     });
   },
 
+  retrieveUsers: function(callback) {
+    var id = this.getField("id");
+    actions.mailinglist.listUsers({
+      i18nErrors: {},
+      data:{
+        id: id
+      }
+    }, function(err, res) {
+      callback(err, res && res.users);
+    });
+  },
+  onAddUser: function(user, callback) {
+    var id = this.getField("id");
+    actions.user.mailinglist.register({
+      i18nErrors: {},
+      data: {
+        id: user.id,
+        idMailingLists: [id]
+      }
+    }, callback);
+  },
+  onDeleteUser: function(user, callback) {
+    var id = this.getField("id");
+    actions.user.mailinglist.unregister({
+      i18nErrors: {},
+      data: {
+        id: user.id,
+        idMailingLists: [id]
+      }
+    }, callback);
+  },
+  checkCanAddUser: function(user, callback) {
+    var permissions = this.getField("permissions");
+    if(!validatePermissions(user.permissions, permissions)) {
+      return callback({key: "insuffisantPermissions"});
+    }
+    callback();
+  },
+
   render: function() {
     var self = this;
-    var isNew = this.isNewMailingList();
-    var buttonsConfig = [
-      {
-        icon: "save",
-        tooltip: {
-          text: __("save"),
-          overlayProps: {
-            placement: "top"
-          }
-        },
-        props: {
-          disabled: !this.hasChanges()
-        },
-        callback: _.bind(this.saveChanges, this)
-      },
-      {
-        icon: "trash",
-        tooltip: {
-          text: __("remove"),
-          overlayProps: {
-            placement: "top"
-          }
-        },
-        warningMessage: __("mailinglist::deleteMailingListWarning"),
-        callback: _.bind(this.deleteMailingList, this)
-      }
-    ];
-    if(isNew) {
-      buttonsConfig[1].icon = "remove";
-      buttonsConfig[1].warningMessage = __("areYouSure");
-    }
     var showAtRegistration = !!this.props.showAtRegistrationLink.value;
-    var registrationButton = [{
+    var hasChanges = this.hasChanges();
+    var isNew = this.isNewMailingList();
+    var saveButton = this.canEditList && {
+      icon: "save",
+      tooltip: {
+        text: __("save"),
+        overlayProps: {
+          placement: "top"
+        }
+      },
+      props: {
+        disabled: !hasChanges
+      },
+      callback: _.bind(this.saveChanges, this)
+    };
+    var editPermissionsButton = !showAtRegistration && this.canEditList && {
+      icon: "shield",
+      tooltip: {
+        text: __("mailinglist::editPermissionsTooltip"),
+        overlayProps: {placement: "top"}
+      },
+      callback: this.props.requestPermissionChanges
+    };
+    var cancelButton = hasChanges && {
+      icon: "recycle",
+      tooltip: {
+        text: __("cancel"),
+        overlayProps: {placement: "top"}
+      },
+      warningMessage: __("areYouSure"),
+      callback: this.resetMailingList
+    };
+    var deleteButton = this.canDeleteList && !hasChanges && {
+      icon: isNew ? "remove" : "trash",
+      tooltip: {
+        text: __("remove"),
+        overlayProps: {placement: "top"}
+      },
+      warningMessage: isNew ? __("areYouSure") : __("mailinglist::deleteMailingListWarning"),
+      callback: this.deleteMailingList
+    };
+    var userList = this.canViewUsers && (
+      <MKUserListWrapper
+        noAdd={!this.canAddUsers}
+        noDelete={!this.canDeleteUsers}
+        retrieveUsers={this.retrieveUsers}
+        checkCanAddUser={this.checkCanAddUser}
+        onAddUser={this.onAddUser}
+        onDeleteUser={this.onDeleteUser}
+      />
+    );
+    var editUsersButton = this.canViewUsers && {
+      icon: "users",
+      tooltip: {
+        text: __("mailinglist::editUsersInMailingList"),
+        overlayProps: {placement: "top"}
+      },
+      modalTrigger: (
+        <MKAbstractModal
+          title={__("mailinglist::userList")}
+          modalBody={userList}
+        />
+      )
+    };
+    var buttonsConfig = _.compact([
+      saveButton,
+      editUsersButton,
+      editPermissionsButton,
+      deleteButton,
+      cancelButton
+    ]);
+
+    var registrationButton = this.canEditList || isNew ? [{
       icon:"check",
       tooltip: {
         text: __("mailinglist::showAtRegistrationTooltip"),
@@ -173,14 +324,17 @@ var MailingListEditPanel = React.createClass({
         self.props.showAtRegistrationLink.requestChange(!showAtRegistration);
         e.target.blur();
       }
-    }];
+    }] : [];
+
+    var minWidthClass = "list-mod-min-width-" +
+      (buttonsConfig.length + registrationButton.length + 2);
 
     return (
       <BSPanel className="mailingList-edit-min-height">
         {this.renderFeedback()}
         <BSGrid className="mailingListPanel" fluid>
           <BSRow>
-            <BSCol md={4} className="pull-right mailingList-actions-buttons">
+            <BSCol md={4} className={"pull-right mailingList-actions-buttons " + minWidthClass}>
               <MKListModButtons
                 className="pull-right"
                 buttons={buttonsConfig}
@@ -190,24 +344,29 @@ var MailingListEditPanel = React.createClass({
                 buttons={registrationButton}
               />
             </BSCol>
-            <BSCol xs={8} className="mailingList-name-form">
-              <BSInput
-                type="text"
-                label={__("name")}
-                valueLink={this.props.nameLink}
-              />
+            <BSCol sm={8} className="mailingList-name-form">
+              {this.canEditList ?
+                <BSInput
+                  type="text"
+                  label={__("name")}
+                  valueLink={this.props.nameLink}
+                /> :
+                <strong>{this.props.nameLink.value}</strong>
+              }
             </BSCol>
-
           </BSRow>
           <BSRow>
             <BSCol md={12}>
-              <BSInput
-                type="textarea"
-                className="resize-vertical"
-                label={__("mailinglist::description")}
-                placeholder={__("mailinglist::descriptionPlaceholder")}
-                valueLink={this.props.descriptionLink}
-              />
+              {this.canEditList ?
+                <BSInput
+                  type="textarea"
+                  className="resize-vertical"
+                  label={__("mailinglist::description")}
+                  placeholder={__("mailinglist::descriptionPlaceholder")}
+                  valueLink={this.props.descriptionLink}
+                /> :
+                <p>{this.props.descriptionLink.value}</p>
+              }
             </BSCol>
           </BSRow>
         </BSGrid>

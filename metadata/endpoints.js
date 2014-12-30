@@ -4,6 +4,14 @@ var endpoints = {
             path: "/mailinglists",
             method: "get",
         },
+        listAvailable: {
+            path: "/mailinglists/available",
+            method: "get",
+        },
+        listUsers: {
+            path: "/mailinglists/:id/users",
+            method: "get"
+        },
         registration: {
             path: "/mailinglists/registration",
             method: "get",

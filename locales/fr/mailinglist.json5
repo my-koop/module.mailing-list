@@ -8,15 +8,17 @@
   mailingListTab: "Listes de diffusion",
   mailingLists: "Listes de diffusion",
 
-  showAtRegistrationTooltip: "Afficher cette liste de diffusion dans le formulaire d'inscription des nouveaux utilisateurs",
+  showAtRegistrationTooltip: "Afficher cette liste de diffusion dans le formulaire d'inscription des nouveaux utilisateurs. Retire tous les privilèges de cette liste de diffusion.",
   registerError: "Erreur survenue pendant l'inscription aux listes de diffusion",
 
   config: "Configurations",
   globalEmail: "Courriel principal",
-
-  config: "Configurations",
-  globalEmail: "Courriel principal",
   subject: "Sujet",
+  editUsersInMailingList: "Modifier les utilisateurs dans cette liste de diffusion",
+  userList: "Liste d'utilisateur",
+
+  permissionChoiceFor: "Privilèges pour",
+  editPermissionsTooltip: "Modifier les privilèges pour cette liste de diffusion",
 
   errors: {
     app: {
@@ -27,5 +29,17 @@
         tooLong: "Le nom doit contenir un maximum de __variable__ caractères"
       }
     }
-  }
+  },
+
+  navbar: {
+    quickActions: {
+      sendEmail: "Envoyer un courriel"
+    }
+  },
+
+  sidebar: {
+    mailinglists: "$t(mailinglist::mailingLists)",
+    sendEmail: "$t(mailinglist::navbar.quickActions.sendEmail)",
+    manageLists: "Gérer les listes",
+  },
 }

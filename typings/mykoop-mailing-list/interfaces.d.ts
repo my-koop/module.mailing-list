@@ -1,11 +1,11 @@
 
-declare module MailingList {
+declare module mkmailinglist {
 
   export interface MailingList {
     id?: number
     name: string;
     description: string;
-    permissions?: any; // no support for now
+    permissions: any;
     showAtRegistration: boolean;
   }
 
@@ -27,10 +27,23 @@ declare module MailingList {
 
   module GetMailingList {
     export interface Params {
-      inRegistration?: boolean;
+      id: number;
     }
+    export interface Result extends MailingList {}
     export interface Callback {
-      (err?, result?: MailingList[]) : void;
+      (err?, result?: Result) : void;
+    }
+  }
+
+  module GetMailingLists {
+    export interface Params {
+      inRegistration?: boolean;
+      requesterPermissions?: any;
+      userId?: number;
+    }
+    export interface Result extends Array<MailingList> {}
+    export interface Callback {
+      (err?, result?: Result) : void;
     }
   }
 
@@ -70,24 +83,6 @@ declare module MailingList {
     }
   }
 
-  export interface MailingListConfiguration {
-    globalSender: string;
-  }
-  module GetConfigurations {
-    export interface Params {}
-    export interface CallbackResult extends MailingListConfiguration {}
-    export interface Callback {
-      (err: Error, result?: CallbackResult): void;
-    }
-  }
-
-  module SetConfigurations {
-    export interface Params extends MailingListConfiguration {}
-    export interface Callback {
-      (err: Error): void;
-    }
-  }
-
   module SendEmail {
     export interface Params {
       id: number; //mailing list id
@@ -96,6 +91,24 @@ declare module MailingList {
     }
     export interface Callback {
       (err?: Error): void;
+    }
+  }
+
+  module GetMailingListUsers {
+    export interface Params {
+      // mailing list id
+      id: number;
+    }
+    export interface Result {
+      users: {
+        id: number;
+        firstName: string;
+        lastName: string;
+        email: string;
+      }[];
+    }
+    export interface Callback {
+      (err: Error, result?: Result): void;
     }
   }
 }
